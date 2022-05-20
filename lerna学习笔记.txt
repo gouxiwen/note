@@ -1,0 +1,15 @@
+lerna可以用来管理多项目间互相依赖，复用公共模块
+
+全局或者局部安装lerna
+执行learn init初始化一个learn工程
+生成的lerna.json文件，lerna默认使用npm安装包，可以修改这个文件进行改变，yarn在1.0版本之后提供了workspaces的功能，该功能从更底层的地方提供了依赖提升，做的事情跟lerna如出一辙。把它跟lerna放在一起看，简直就像是为lerna量身定做一样。因此，推荐在lerna中搭配yarn一起使用。
+lerna.json中
+ "useWorkspaces": true,
+  "npmClient": "yarn"
+主项目package.json中
+  "workspaces": [
+    "packages/*"
+  ]
+lerna add安装模块，默认情况下执行完Lerna add的执行逻辑是添加依赖到子项目的package.json里然后自动执行的安装命令lerna bootstrap安装模块，同时修改所有子项目的lock文件，可以通过修改lerna.json来避免修改lock文件
+使用yarn做为安装工具后执行lerna add 会自动提升依赖
+同样lerna bootstrap加hoist参数也可以提升模块到主项目的modules中，但是package.json信息还是保留在子项目中

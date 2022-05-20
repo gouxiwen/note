@@ -1,0 +1,8 @@
+shell是一种执行shell命令的程序
+shell是壳的意思，就是是Linux/Unix的一个外壳，怎么理解呢？你想象是Linux/Unix是一个你看不见摸不着的系统，你想要和它打交道就需要一个壳套在它身上，然后你通过这个壳和它进行交流，shell就是一个用来和是Linux/Unix交流的程序，shell有很多中，我们熟悉的有sh、bash、zsh等，运行open /bin打开/bin目录，里面sh结尾的都是shell程序，macOs11.x默认的是zsh，zsh兼容bash并且有很多强大的新功能，支持插件。参考https://www.cnblogs.com/dhcn/p/11666845.html
+在shell交互框里除了可以执行shell命令还可以执行任意其他命令，如node，npm等
+
+shell同样是一门编程语言，可以运行在Linux/Unix系统中，通过编写shell脚本可以批量地执行shell命令
+
+
+每一个内置shell命令都是一个单独的shell程序，也可以利用内置shell命令加shell语法自定义命令

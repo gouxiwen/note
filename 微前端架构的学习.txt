@@ -1,0 +1,30 @@
+1. qiankun架构
+
+它是如何加载子应用的？
+通过监听url变化，fetch子应用的html，获取静态资源，将得到的HTML document作为子节点添加到主应用的容器中
+
+它是如何做隔离的？
+css隔离：
+1.通过scope的方式统一给子应用样式加上特有的前缀
+2.通过Shadow DOM（改方案已弃用了）
+js隔离：
+在bootstrap和mount之前分别记录全局状态快照，在unmount时恢复bootstrap之前的状态，在remount时恢复第一次mount之前的状态，确保不污染全局且多次挂在状态一致。除了全局状态之前还有全局事件也是一样的做法。
+
+它是如何通信的？
+
+主应用初始化一个状态actions = initGlobalState(state) ，然后通过props传递给子应用
+假设子应用时使用store管理状态的
+主应用->子应用
+主应用中改变状态：actions.setGlobalState({})
+子应用中监听变化：props.onGlobalStateChange((state, prev) => {
+    // state: 变更后的状态; prev 变更前的状态
+    console.log(state, prev);
+	更新到自己的store
+  });
+
+子应用->主应用
+子应用监听store的变化，然后改变状态：props.setGlobalState({})
+主应用监听变化：actions.onGlobalStateChange((state, prev) => {
+    // state: 变更后的状态; prev 变更前的状态
+    console.log(state, prev);
+  });

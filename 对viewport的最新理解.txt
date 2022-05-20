@@ -1,0 +1,17 @@
+<meta name="viewport" content="width=device-width, initial-scale=2">
+
+布局视口：document.documentElement.clientWidth
+理想视口：设备宽度
+
+meta标签中的width和initial-scale都可以设置布局视口，两者一起使用取最大值
+
+initial-scale=1和width=device-width效果一样
+width比较好理解，就是指定布局视图宽度为某个值
+
+initial-scale不好理解
+
+initial-scale的意思是将布局视口里的内容缩放n倍后 = 理想视口
+
+initial-scale=2的意思是原来布局中的1px变为2px，即实际内容放大2倍，所以此时document.documentElement.clientWidth*2 = 理想视口，由于同一设备上理想视口大小不变，所以达到的效果是里面的内容变大了，但是布局视口本身变小了（很难理解）
+
+为了方便理解，把initial-scale的值就理解成真实内容的放大缩小，而把document.documentElement.clientWidth当成由initial-scale和理想视口计算出来的变量就行了

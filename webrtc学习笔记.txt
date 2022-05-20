@@ -1,0 +1,73 @@
+1.对sdp的学习记录
+sdp标准规范
+格式<type>=<value>
+a=表示附加属性
+有会话级别和媒体级别的
+媒体级别中
+Webrtc的sdp对标准规范进行了扩展，WebRTC 按功能将 SDP 划分成了五部分，即会话元数据、网络描述、流描述、安全描述以及服务质量描述
+a=extmap:1 表示扩展rtp头部，后面的数字表示扩展的类型
+在媒体级别中，采用动态编码类型的媒体可能会有多种编码方式，每一种方式一般都会包括rtpmap、rtcp-fb、fmtp三个附加属性
+a=rtpmap 用来表示编解码器类型，采样率，声道
+a=fmtp 对rtpmap进一步说明
+a=rtcp-fb 表示用rtcp来控制拥塞
+
+动态编码类型中rtx表示用来重传的类型，跟在真正的编码类型后面，如
+a=rtpmap:96 VP8/90000
+a=rtpmap:97 rtx/90000
+fmtp（format parameters）格式化参数，用来更加详细地描述rtpmap
+a=fmtp:97 apt=96 // 这里的96指的就是上面的VP8编码类型
+//上面的三行表示VP8的编码类型及其重传包类型
+a=ssrc-group:FID 3463951252 1461041037
+//在webrtc中，重传包和正常包ssrc是不同的，上一行中前一个是正常rtp包的ssrc,后一个是重传包的ssrc
+
+冗余策略
+a=rtpmap:116 red/90000
+//fec冗余编码，fec是向前纠错的意思，这里表示支持丢包恢复，会发送一些冗余数据，提前防止丢包
+a=rtpmap:117 ulpfec/90000
+//支持ULP FEC，即丢包恢复能力（算法），参考rfc5109
+
+参考：https://www.cnblogs.com/ZY-Dream/p/13964263.html
+
+2.对iec协商过程的连通性检查的学习记录
+ICE 的角色：Offer 一方为controlling角色，answer一方为controlled角色。
+ICE的模式：分为FULL ICE和Lite ICE
+FULL ICE:是双方都要进行连通性检查，完整地走一遍流程。
+Lite ICE: 在FULL ICE和Lite ICE互通时，只需要FULL ICE一方进行连通性检查， Lite一方只需回应response消息。这种模式对于部署在公网的设备比较常用。
+
+在ice各自收集了candidate后将Component ID和transport protocol相同的candidates组成pair
+按照优先级做个排序，生成checklist
+两端都按照各自的checklist进行连通性检查，使用STUN binding request/response，包含Fingerprint检验校验机制
+将检查成功的pair按照优先级加入validlist，如果是在公网环境，收到STUN binding request然后响应就表示检查成功了。
+以上过程双方一起进行。
+
+接下来的过程需要区分controlling和controlled
+提名candidate pair
+由controlling来做：
+提名哪对candidate pair为valid pair
+接着选择最终传输地址
+ICE在提名的valid pair里选择优先级最高那对作为本次ICE流程传输地址。
+
+参考：https://blog.csdn.net/netease_im/article/details/88876286
+
+3.关于addTransceiver和addTrack
+addTransceiver会给peer的收发器集添加一个接收发送器RTCRtpTransceiver，有video和audio两种类型，每个接收发送器包含一个接收器RTCRtpReceiver和一个发送器RTCRtpSender。
+
+如果不需要发送音视频数据，可以使用addTransceiver创建发送接收器接收远端数据。
+
+addTrack会添加一个轨道到轨道集，此方法可能返回一个新的发送器RTCRtpSender，或者在非常特定的情况下，一个尚未用于传输数据的现有兼容发送器。兼容的可重用 RTCRtpSender 实例满足以下条件：
+1.该发送器没有关联轨道
+2.该发送器的kind和addTrack方法传入的一样
+3.该发送器所属的接收发送器的stopped属性是false
+4.该发送器的没有被发送过数据，如果收发器的 currentDirection 曾经是“sendrecv”或“sendonly”，则不能重用。
+如果可以重用，则
+1.该发送器的轨道被设置为传入的轨道
+2.与该发送器关联的流的流被设置为传入的流
+3.接发器的currentDirection被更新，如果是recvonly"变成"sendrecv", 如果是"inactive"变成"sendonly"。
+如果不能复用，则新建一个发送器和与之关联的收发器：
+1.新发送器的轨道和关联的流被设置
+2.一个新的接收器被创建，用一个新的MediaStreamTrack（而不是addTrack传入的track）作为它的track属性，新流的kind作为新接收器的kind
+3.一个新的收发器被创建
+4.新的收发器的direction被设置为"sendrecv"。
+5.新的收发器添加到peer的收发器集。
+
+如果需要发悚音视频数据。就用addTrack

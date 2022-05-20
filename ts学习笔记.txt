@@ -1,0 +1,130 @@
+类型别名和字面量类型都用type定义
+类型别名和接口的区别：
+类型别名不能用来extends，但是可以被extends
+类型别名不能被implements
+
+如何理解 TS 类型编程中的 extends 和 infer？（这里指的是传递范型定义类型时）
+extends：
+形如：<T extends U>
+分两种情况：
+1.T不是联合类型，则代表的意思是T是否是U的子集
+2.T是联合类型时，则会遍历T中的类型分别进行判断是否时U的子集
+eg：
+1.范型中定义类型时常用extends keyof any限制是个key，如<K extends keyof any>
+2.内置类型的定义：type Extract<T,U> = T extends U ? T:never 
+
+infer：
+在条件语句中作为待推断的类型变量，推断返回值类型，这里的条件语句就是T extends U ? X : Y，也就是说，infer和extends配合，用作类型推断的。而且infer一般和extends后的子句有联系，如果没有，那就没必要使用了。
+infer后面变量只能在 true 的分支可以使用，也就是只能在 ? 的第一个分支中使用。
+
+例如
+type Foo<T> = T extends { a: infer U; b: infer U } ? U : never;
+使用时
+type T1 = Foo<{ a: string; b: number }>; // T1类型为 string | number
+上面的U就是代表传进来的string和number
+
+type Tg<T> = T extends (infer R)[] ? R : never
+使用时
+type T2 = Tg<[string,number]> // T2类型为 string | number
+上面的R就是代表这里传进来的string和number
+
+
+接口中定义函数时范型的使用
+使用接口定义一个范型函数
+interface CreateArrayFunc {
+    <T>(length: number, value: T): Array<T>;
+}
+此时的范型使用没有任何限制
+但是当把泛型参数提前到接口名上时，范型的类型必须在使用接口的时候定义，此时的范型可以限制其类型
+interface CreateArrayFunc<T> {
+    (length: number, value: T): Array<T>;
+}
+let createArray: CreateArrayFunc<any>; // 范型可以是任何类型
+let createArray: CreateArrayFunc<string>; // 范型只能是string
+let createArray: CreateArrayFunc<string|number>; // 范型只能是string或者number
+
+声明文件
+declare module用来扩展一个模块或者声明一个或多个模块
+语法：
+declare module '模块名' {
+export xxx;
+export= xxx
+}
+
+扩展全局变量：
+1.直接扩展全局变量
+直接使用interface 全局类型，利用声明合并扩展
+语法：
+interface String {
+    prependHello(): string;
+}
+2.也可以使用 declare namespace 给已有的命名空间添加类型声明
+declare namespace JQuery {
+    interface CustomOptions {
+        bar: string;
+    }
+}
+3.在 npm 包或 UMD 库中扩展全局变量，导入了该包以后就会扩展全局变量
+declare global用来在npm包或UMD库中扩展全局变量，导入包后生效
+语法：
+declare global {
+    interface String {
+        prependHello(): string;
+    }
+}
+
+export {}; // 必须的，用来告诉编译器这是一个模块的声明文件，而不是一个全局变量的声明文件
+
+在ts中针对commonjs的导入有三种方式
+导出：
+// 整体导出
+module.exports = foo;
+// 单个导出
+exports.bar = bar;
+导入：
+1.
+// 整体导入
+const foo = require('foo');
+// 单个导入
+const bar = require('foo').bar;
+2.
+// 整体导入
+import * as foo from 'foo';
+// 单个导入
+import { bar } from 'foo';
+3.（官方推荐）
+// 整体导入
+import foo = require('foo');
+// 单个导入
+import bar = foo.bar;
+
+commonjs申明文件需要通过申明合并来申明单个导出
+// 先导出
+export = foo;
+
+// 再利用申明合并进行类型定义
+declare function foo(): string;
+declare namespace foo {
+    const bar: number;
+}
+
+关于unknown和any的区别：
+unknown是所有类型的父类
+any即使所有类型的父类，又是所有类型的子类，使用any等于放弃了类型检查，不安全
+使用上除了暴力放弃类型检查的地方其他不确定的类型都用unknown
+
+用interface定义构造函数：
+通常定义一个类的同时也会定义一个同名接口出来，此接口只包含了类里的实例属性和实例方法
+如果不使用class而直接定义个构造函数的接口出来，则可以使用interface直接定义，定义方法和普通接口类似，区别是必须定义一个构造函数，且这个构造函数以new 开始，如的ts源码中对Promise的定义
+interface PromiseConstructor {
+    readonly prototype: Promise<any>;
+    new <T>(executor: (resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void): Promise<T>;
+...
+}
+declare var Promise: PromiseConstructor;
+
+定义类型是&表示交叉类型，可以合并所有类型或者接口，如合并的类型或者接口有相同的成员，分两种情况：
+1. 成员类型一致，成功合并
+2. 成员是基本类型且不一致，合并后就是never
+3. 成员是非基本类型且不一致，则会合并不同的类型
+

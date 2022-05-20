@@ -1,0 +1,48 @@
+理解Tree-shaking和代码的副作用
+Tree-shaking的流程是打包器如webpack识别死代码，插件如TerserPlugin删除死代码。Tree-shaking针对的是纯的ES模块有效。
+
+什么是副作用？
+副作用来自函数时编程的概念，一个函数的执行如果对其外部变量产生影响，就说明它有副作用。
+在webpack中，webpack在识别代码过程中一段代码的执行回对全局产生影响或者一个函数具有副作用就认为这个导入是具有副作用的，默认不会删除。如全局样式表，或者全局的js配置
+
+如何设置副作用？
+明确告诉webpack哪些有副作用
+1.在package.json中加入sideEffects字段,可以是boolean或者有副作用的文件路径数组，默认true，都有副作用。
+实践中发现设置为false对引入的库文件不起作用
+2.在module的rules的每个规则中分别配置sideEffects
+
+常见问题：
+为什么代码明明是没有副作用的，打包以后就有了？（UglifyJS时代，使用Terser就不会，webpack4需要手动配置，webpack5内置。）
+因为UglifyJS不支持压缩ES6+代码，所以先经过babel编译再压缩，babel在编译ES6到ES5时为了保留ES6的特性有些代码（如：类）会编译成具有副作用的代码。
+
+被编译成commonjs的库如何做Tree-shaking？
+被打包成cjs的库在引用后无法进行Tree-shaking，解决方法是把每个工具函数或者组件打包成一个独立的文件或者文件夹，然后利用自己开发的插件进行导入，从而达到按需引入的效果。如antd的babel-plugin-import，element-ui的babel-plugin-component。
+也可以将库导出一份ES modules（wepack5实验性支持，rollup支持），一般在esm目录下，然后在package.jason的module字段中指明引用路径，如果用ES modules方式导入库，则最新的打包器（webpack4以上）就会去这个路径去找，从而可以进行Tree-shaking。
+
+babel-plugin-import的作用及原理
+babel-plugin-import时antd推出的导入语法转换插件，支持用commonjs导出的模块按需引入。
+customize-cra的fixBabelImports用的也是这个插件
+实现原理是转换代
+将import { Button } from 'antd';
+转为
+var _button = require('antd/lib/button');
+
+如果样式需要单独引入，为了防止全局引入，也可以通过配置项支持，前提是对应的库目录下有对应的文件
+如配置：style: "css" 
+则转为
+var _button = require('antd/lib/button');
+require('antd/lib/button/style/css');
+如配置：style: true
+则转为
+var _button = require('antd/lib/button');
+require('antd/lib/button/style');
+
+babel-plugin-imports-transform的作用和babel-plugin-import一样
+将import { Grid, Row, Col } from 'react-bootstrap';
+转为
+import Grid from 'react-bootstrap/lib/Grid';
+import Row from 'react-bootstrap/lib/Row';
+import Col from 'react-bootstrap/lib/Col';
+同样支持样式按需加载
+
+特别说明：基于ES modules导出的模块原则上是不需要转换的（因为现代打包器，如webpack >= 2.x,都支持Tree-shaking），但是如果需要按需加载样式的话，还是需要使用以上的插件的，如antd

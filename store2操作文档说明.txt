@@ -1,0 +1,36 @@
+store2.js用来更加方便地操作localStorage和sessionStorage
+1.默认情况下操作的是localStorage
+store.local === store
+store.session
+
+2.所有设置方法的可选参数overwrite可以是布尔值也可以是一个replacer函数，默认覆盖老的数据，为false会跳过但是会返回这个未使用的新值，如果是replacer函数，则自定义序列化规则。
+
+3.所有有可选参数alt的方法，alt可以是个数据对象或者reviver函数，如果是数据对象则表示在执行该方法时没有返回值时返回改数据对象，如果是reviver函数，则自定义解析规则。
+
+4.store.page表示页面重载数据会丢失
+
+5.可以自定义命名空间
+store.namespace('cart')
+
+6.所有的get，set等方法在store.session,store.local,store.page和自定义命名空间和其他或者中都能用。
+
+7.store.isFake([force])用来测试或者设置是否使用伪造，如果localStorage或者sessionStorage不可用，则伪造一个临时的储存，页面消失会丢失。
+
+8. 可以使用扩展
+
+9.可以自定义扩展
+定义：
+(function(_) {
+    _.fn('falsy', function(key) {
+        return !this.get(key);
+    });
+    _.fn('truthy', function(key) {
+        return !this.falsy(key);
+    });
+})(store._);
+使用：
+store('foo', 1);
+store.falsy('foo'); // returns false
+
+10.transact事务
+更改特定key下的对象的内部属性

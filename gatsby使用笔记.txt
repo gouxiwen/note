@@ -1,0 +1,29 @@
+Gatsby是一个基于react的静态网页生成框架，结合了GraphQL，可以扩展插件，优化了网页SEO
+
+了解一下三种页面渲染模式：
+(SSG) Static Site Generator, Generated at build time 
+(DSG) Deferred static generation - page generated at runtime                                         (SSR) Server-side renders at runtime (uses getServerData)
+Gatsby可以选择使用哪种，默认第一种，后面两种要启动node服务
+
+DSG，可以通过配置使得有些不是很常用的页面，不用在构建时生成，而是在用户第一次访问时再生成，这些在某些大型项目中可以加快构建速度，先构建后启动服务run gatsby build && gatsby serve，然后将服务放到CDN，Gatsby Cloud 提供了完整的配置
+https://www.gatsbyjs.com/docs/reference/rendering-options/deferred-static-generation/
+
+SSG，用户请求时根据在外部请求到的数据动态生成HTML，启动gatsby serve，然后将服务放到CDN，Gatsby Cloud 提供了完整的配置
+
+如何优化SEO？
+1.手动添加页面元数据（metadata）
+2.创建一个seo组件
+3.在页面引入seo组件
+原理：
+Gatsby在编译或部署站点时(即，当您运行build命令时)创建SEO对象(此外，JavaScript中的任何默认对象，受componentDidMount/useEffect挂钩或类似的React生命周期影响的对象除外)。这意味着你的搜索引擎优化对象将从任何内容管理系统数据源动态生成，你的对象将在编译时由任何来源的任何数据填充，但一旦完成，它将在一个普通的HTML文件中输出(在/public文件夹下)。这个普通的超文本标记语言是谷歌将读取的，所以它不会处理任何JavaScript，它将直接读取你的元数据。
+
+像 React 生命周期同样，Gatsby 提供了供开发者使用的钩子。gatsby-node.js、gatsby-ssr.js、gatsby-browser.js 之类的 Gatsby 特定文件就涉及到这些生命周期钩子。参考：http://www.javashuo.com/article/p-rbntiato-kk.html
+
+gatsby-node.js中可以创建动态页面，配置babel、webpack，处理构建过程的钩子。
+
+gatsby-ssr.js中配置服务端渲染的选项， wrapPageElement 和 wrapRootElement 存在于 SSR 和浏览器 API 中，所以应该实现相同的组件，以便水合后有相同的功能。
+
+gatsby-browser.js中配置浏览器有关的选项，预加载，Service Worker，处理页面加载，路由变化，Service Worker的生命周期对应的钩子。
+
+
+水合（Hydration）：Gatsby 生成的静态站点在初次加载后会转变为动态应用，即下载js资源将站点转为可操作dom的完整的react应用，这个过程叫做水合，也就是说你能够基于静态站点搭建 web 应用

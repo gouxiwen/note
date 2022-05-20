@@ -1,0 +1,14 @@
+Immutable.js可以创建一个不可变对象，它的实现有些像链表，添加一个新结点把旧结点的父子关系转移到新结点上，性能提升很多。
+
+它解决的问题是在按引用来传递数据的场景中，存在因修改数据而带来影响范围不可控的副作用，因为你不知道谁还引用着这份数据，不知道你的修改会影响到谁
+
+var  defaultConfig = Immutable.fromJS({ /* 默认值 */});
+var config = defaultConfig.merge(initConfig); // defaultConfig不会改变，返回新值给config
+var config = defaultConfig.mergeDeep(initConfig); // 深层merge
+
+上述操作通过递归操作的深拷贝也能做到，但是性能没有使用Immutable.js好
+
+react的diff中也用到了Immutable.js：
+
+1. 假如你在组件state中保存了一份有深层结构的引用类型的数据，如果没有Immutable.js，你需要深拷贝一份再做修改。而用Immutable.js将state中的数据包装一下，不需深拷贝就可以直接修改。
+2. 由于修改后返回的是新对象，React.js只需要在oldState.obj === newState.obj这一层就能判断出obj产生了变化，不需要深入obj的深层结构。

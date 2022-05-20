@@ -1,0 +1,49 @@
+open -n /Applications/Google\ Chrome.app --args --disable-web-security --user-data-dir=/Users/getech/Documents/MyChromeDevUserData/
+
+
+zip -r app.nw ./*
+
+
+sudo ifconfig en0 ether 98:46:0a:8c:2d:05
+# 修改模块的软连接指向
+ln -snf ./_nw@0.50.2-sdk@nw nw
+查看进程
+# 在知道程序端口的情况下：
+
+# 将PortNum替换为要查询的端口号（注意端口号前面不要空格）
+sudo lsof -i:PortNum
+# 举个例子
+sudo lsof -i:8081
+
+也可以使用进程名字查找
+ps -aux | grep 进程名字
+杀死进程
+# 前提是需要知道进程的PID号
+
+# 将PID替换为相应的进程号
+sudo kill -9 PID号
+# 举个例子
+sudo kill -9 2091
+
+ng
+重新加载配置文件
+sudo nginx -s reload
+重新启动 nginx 服务。
+sudo nginx -s stop
+Nginx 停止运行
+service nginx restart
+
+pm2管理node应用
+npm install -g pm2
+pm2 start app.js        // 启动
+pm2 start app.js -i max //启动 使用所有CPU核心的集群
+pm2 stop app.js         // 停止
+pm2 stop all            // 停止所有
+pm2 restart app.js      // 重启
+pm2 restart all         // 重启所有
+pm2 delete  app.js      // 关闭
+pm2 list // 查看应用列表
+pm2 log  // 查看日志
+
+
+git push --set-upstream origin master等价于git push -u origin master。 指定一个默认主机

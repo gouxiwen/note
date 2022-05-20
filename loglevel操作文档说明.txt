@@ -1,0 +1,60 @@
+1.loglevel的使用
+// log.enableAll() // 启用所有级别日志
+log.setLevel("debug", true) // 设置日志记录级别，此级别一下的将被忽略打印，第二个可选参数表示是否记录到localstorage或者cookie中，默认true
+log.trace("trace");
+log.debug("debug");
+log.info("info");
+log.warn("warn");
+log.error("error");
+// log.resetLevel() // 清楚掉记录到localstorage或者cookie中的日志级别，并且重置为默认warn
+log.info("info");
+log.error("error");
+// 可以添加命名日志，单独设置级别，不影响根日志
+const myLog = log.getLogger("myLOg")
+myLog.setLevel('TRACE')
+myLog.info('myLog')
+// 自定义插件
+const originalFactory = log.methodFactory;
+log.methodFactory = function (methodName, logLevel, loggerName) {
+    const rawMethod = originalFactory(methodName, logLevel, loggerName);
+
+    return function (message) {
+      const messages = ["Newsflash:"];
+      for (let i = 0; i < arguments.length; i++) {
+        messages.push(arguments[i]);
+      }
+      rawMethod.apply(undefined, messages);
+    };
+};
+log.setLevel(log.getLevel()); // Be sure to call setLevel method in order to apply plugin，调用插件
+
+log.info('new log info', '123')
+log.error('new log error', '123')
+2.loglevel-plugin-prefix插件的使用
+用来定义前缀
+必须先注册
+reg(loglevel) 参数是loglevel的根日志
+调用插件
+apply(logger, options)
+参数
+logger：根日志或者命名日志
+options：可选配置项
+默认配置：
+var defaults = {
+  template: '[%t] %l:',
+  levelFormatter: function (level) {
+    return level.toUpperCase();
+  },
+  nameFormatter: function (name) {
+    return name || 'root';
+  },
+  timestampFormatter: function (date) {
+    return date.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, '$1');
+  },
+  format: undefined
+};
+
+template中用%l,%n,%t分别代表消息级别，日志名称和时间戳的组合显示格式
+后面三个格式化函数分别自定义级别、日志和时间戳的格式给template和format使用
+最后的format是个函数，接收三个参数(level, name, timestamp)，然后返回值为日志前缀显示的格式
+如果format和template都有，template被忽略

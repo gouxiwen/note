@@ -1,0 +1,37 @@
+Node的libuv中的事件循环的六个阶段（实际上七八个阶段，node只关心六个）：
+计时器（timers）：本阶段执行setTimeout() 和 setInterval() 计划的回调；
+Padding callbacks： 队列中挂起的回调执行。如果之前的迭代推迟了任何回调，这些回调将在此时运行，如poll中上一次未处理的I/O回调，某些系统操作（如 TCP 错误类型）执行回调。
+空闲，预备（idle，prepare）：只内部使用；
+轮询（poll）： 获取新的 I/O 事件；nodejs这时会适当进行阻塞；
+检查（check）： 调用 setImmediate() 的回调；
+close callbacks： 例如 socket.on('close', ... );
+
+每个阶段都有自己的队列
+process.nextTick在每个阶段之后执行
+
+poll阶段会议适当进行阻塞的理解，当没有timers且没有setImmediate的回调时，会在此进行等待，等待系统处理完的I/O回调并继续执行，直到回调数到达系统上限后才进入到下一阶段。
+
+
+2.setImmediate和setTimeout
+node的libuv中一次事件循环有六个阶段，其中timers阶段是用于执行setTimeout事件的，check阶段是用于执行setImmediate事件的。
+对于以下代码
+setImmediate(() => {
+	console.log('3'); 
+  Promise.resolve().then(() => console.log('4'));
+});
+setTimeout(()=>{
+  console.log('5');
+  Promise.resolve().then(() => console.log('6'));
+});
+
+它们两个的执行顺序不一定。
+
+对于setImmediate的延时有时比setTimeout的要长，由于setImmediate要先监控调用栈，若调用栈为空才压栈，那么在压栈之前event loop已经将setTimeout事件的回调函数压栈了。
+
+1.宏任务和微任务的执行机制
+v11.x之前是先执行完所有的宏任务，再执行所有的微任务
+v11.x之后是宏任务-改宏任务下的微任务-下个宏任务-...，和浏览器一样
+
+
+
+3.由于node的事件驱动机制，因此node天生适合做I/O密集型的服务，对于cup密集型的服务，node v10.5.0以后有了工作线程可以使用。

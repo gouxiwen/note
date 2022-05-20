@@ -1,0 +1,7 @@
+main:当前项目作为依赖包是被引用的路径，如果是在根目录的index.js文件可以省略
+
+scripts: {
+	postinstall:是npm安装完后会执行的脚本
+}
+
+type: 'commonjs|module' 是否是ESM包，默认是commonjs

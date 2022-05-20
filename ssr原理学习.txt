@@ -1,0 +1,21 @@
+ssr解决掉问题：
+1.首屏渲染时间过长
+2.seo
+ssr实现思路
+打包两个入口文件
+server.js在node上运行和client.js在浏览器运行
+当首次访问页面时，server.js运行，获取数据，并将数据传递到组件转成html发送给浏览器，这份数据会同时注入到html发送给浏览器端，同时client.js也会发送给浏览器
+
+浏览器收到html后会渲染，client.js加载完成后会进行水合渲染操作（ReactDOM.hydrate），即拿到注入到数据后和已有的html进行节点和数据对比，当服务端和浏览器端渲染的组件具有相同的props 和 DOM 结构的时候，组件才能只渲染一次，否则会重新渲染页面，后续页面控制器就交到了client.js手里。
+
+ssr的核心是同构，即服务端渲染和浏览器渲染保持同步
+
+路由同构 --共用一套路由表解决
+数据同构（预取同构）--数据注入解决
+渲染同构 --框架ReactDOM.hydrate方法+数据注入解决
+
+参考文档：https://zhuanlan.zhihu.com/p/133319899
+
+疑问：如何通过拿到的数据进行props和DOM结构比对的？ReactDOM.hydrate内部会解析html反向拿到虚拟dom吗？
+
+答案应该在ReactDOM.hydrate方法里

@@ -1,0 +1,144 @@
+Render Props相当于vue中的插槽，与React.PureComponent一起使用会抵消React.PureComponent带来的优势，因为传入的是函数，函数每次都是不相等的，解决办法就是用变量将函数缓存在实例上。
+
+useLayoutEffect是在dom更新完毕之后浏览器绘制到屏幕(commit)阶段同步执行，会阻塞渲染，类似于类组件中的componentDidMount和componentDidUpdate，useEffect是在更新的dom绘制到屏幕(commit)之后执行的，大多数情况下都使用useEffect，如果在dom更新完后立即改变一些dom操作，如改变颜色，移动位置，则可以使用useLayoutEffect。
+
+useDeferredValue(value, {timeoutMs: 1000})，给性能开销较大的组件延迟更新，保证页面不卡顿，虽然设置了延迟时间，但react还是会根据机器性能尽快地更新的，这一点有别于防抖函数
+
+useTransition，返回一个布尔和一个函数，这个函数用来延迟执行，并且在新值传入时终止正在执行的任务，开始新任务
+
+全局数据管理：
+redux：
+reducer是一个纯函数，接收老的state+action，返回一个新的state
+store是一个利用redux生成的一个对象，对象里有获取状态（getState）、订阅（subscribe）、发布（dispatch）三个方法
+react-redux
+提供组件和hooks供用户组件里使用state和订阅发布并且更新组件
+上下文提供state
+connect组件（useSelector，useDispatch）提供了组件使用state，并且订阅发布，提供触发发布的方法
+
+使用@reduxjs/toolkit，对标准的 Redux 的createStore函数的抽象封装，包裹createStore，并集成了redux-thunk、Redux DevTools Extension，immer，默认开启
+
+immer.js是一个实现了js的不可变数据结构的库，代码优雅，公用未修改部分，时间旅行，参考：https://segmentfault.com/a/1190000017270785
+
+react-thunk和react-saga
+都是实现异步dispatch的中间件
+不同点：
+1.使用方法不同
+thunk的action可以是一个异步高阶函数，内部函数接收store的两个api，dispatch, getState和自定义的参数：
+function incrementAsync() {
+  return (dispatch) => {
+    setTimeout(() => {
+      dispatch({
+    type: 'INCREMENT'
+  });
+    }, 1000);
+  }
+}
+
+// 使用了redux-thunk后dispatch不仅仅可以发出plain object，还可以发出这个异步的函数
+store.dispatch(incrementAsync())
+
+saga的action还是一个普通的对象，但是这个action不是直接作用到store而是作用到saga的任务里，saga监听到任务后执行相应的异步操作，然后发出真正的action，使用put方法
+
+2.实现原理不同
+thunk
+react-redux的所有中间件的结构有三层函数：
+
+function middleware(store) { // 这一层会在applyMiddleware里自动执行，middlewares.map(middleware => middleware(middlewareAPI))
+  return function (next) { // 这一层在compose函数里执行，compose(a,b,c)(...arg)，next是右边函数的返回值，或者原始store的dispatch
+    return function (action) { // 这一层在业务代码中执行（如果这是第一个中间件）,dispatch(对象或者函数)，或者被前一个中间件当作next调用
+      // 返回结果
+      let result = next(action);
+      return result
+    }
+  }
+}
+这是因为applyMiddleware执行后会返回一个新的store，这个store里的dispatch方法实际上是一个组合函数compose的返回值，compose入参是原始store的dispatch
+
+组合函数的作用就是把多个函数组合起来，并且后一个函数的返回值c(...arg)是前一个函数的参数b(c(...arg))，c(...arg)返回的是一个可接收action的函数。
+compose(a,b,c)(...arg) 等价于 a(b(c(...arg)))
+applyMiddleware会将添加的中间件依次执行后传入dispatch转化成组合函数的形式
+const store = createStore(reducer, applyMiddleware([a,b,c])) 会执行传入的applyMiddleware并且返回新的store
+如下：
+applyMiddleware(a,b,c)(createStore)(reducer, initialState)中返回的dispatch === a(b(c(原始store的dispatch)))
+
+dispatch(业务中的action) === a(b(c(原始store的dispatch)))(业务中的action)
+
+所以上面middleware中的next参数就是下一个（右边）中间件的返回值，一个可接收action的函数，如果是最后一个中间件就是原始store中传进来的dispatch，action就是上一个（左边）中间处理后传进来的，如果是第一个中间件就是用户在业务代码中传入的
+
+中间件的实际执行顺序是：
+从左开始执行，左边的要等待右边的执行完后返回结果，即最左边的中间件是直接接收action的，经过处理的action传给下一个中间件执行，然后等待下一个的执行结果，最后返回结果，有点像洋葱模型，过程如下：
+
+业务中执行一个dispatch(action)的执行顺序是：
+a开始执行
+把处理完的action交给b执行，等待b的执行结果
+b开始执行
+把处理完的action交给c执行，等待c的执行结果
+c开始执行
+如果c是最后一个，则把处理完的action交给原始的dispatch执行，得到返回结果
+c返回
+b返回
+a返回
+业务中的dispatch得到返回结果
+
+thunk中间件如下：
+
+function thunk(store) {
+  return function (next) {
+    // 以下返回的函数就是业务中的dispatch
+    return function (action) {
+      // 从store中解构出dispatch, getState
+      const { dispatch, getState } = store;
+
+      // 如果action是函数，将它拿出来运行，参数就是dispatch和getState
+      if (typeof action === 'function') {
+        return action(dispatch, getState); // 这里把原始的dispatch传给业务代码，然后直接return了，看来thunk中间件只能放在最后一个
+      }
+
+      // 否则按照普通action处理
+      let result = next(action);
+      return result
+    }
+  }
+}
+
+Saga是在业务和真正的dispatch之间做了一层代理，利用事件监听业务的action，然后利用生成器函数可以暂停的特性实现了异步操作，封装了一些自己特有的方法，put，call，all，fork，takeEvery，takeLatest
+
+3.代码复杂度和扩展性
+Thunk简单明了，但是没有扩展性
+Saga复杂度高，但是扩展性高
+
+如何选择？
+一般应用使用thunk足够
+
+React组件挂在与更新中可中断渲染的原理：
+核心是fiber架构，fiber是一种数据结构，用来描述组件对象，是链表结构，有child,sibling,return三个指针，分别代表大儿子，兄弟和父亲，关联起了来整个组件树，使得遍历组件树可以暂停，不用每次从头开始。
+React将每个组件处理成一个工作单元nextUnitOfWork，没处理完一个单元就顺着fiber向下寻找下一个单元（先是大儿子，然后是兄弟，最后返回父亲），然后利用requestIdleCallback（在浏览器空闲时）执行。
+Fiber解决的并不是组件的渲染/更新速度的问题，而解决的是防止长时间的深层组件渲染会阻塞其他优先级更高的事件的问题，如鼠标事件，提升交互体验。
+
+目前 requestIdleCallback 目前只有Chrome支持。所以目前 React 自己实现了一个。它利用MessageChannel 模拟将回调延迟到'绘制操作'之后执行
+
+扩展：
+关于requestIdleCallback的原理
+浏览器一秒钟刷新60次，所以理想情况下事件循环的时间是16.7ms，每一次循环都要执行js任务（宏任务+微任务）+rAF回调+重新布局+UI绘制，如果这些任务在16.7ms内完成了并且还有剩余的时间就调用requestIdleCallback里的回调，如果超过了16.7ms就跳过，在下一次循环里继续判断。requestIdleCallback里执行的时间超过了剩余的时间就会掉帧，因为开始执行rIC回调，就一定会执行完，才开始下一帧的任务。
+
+如果没有新的任务导致元素改变，不会进行布局+UI绘制，而是复用当前帧，但是rAF每一帧都执行。rAF里的回调执行事件太长同样会引起掉帧
+
+useCallback使用注意事项
+useCallback要和memo一起使用
+useCallback是为了子组件不进行不必要的重新渲染，但是useCallback本身会耗费性能，却不会对使用它的组件有任何优化，使用不当反而影响性能。从内部来讲，React确保返回相同的对象函数。即便如此，内联函数仍然在每次渲染时创建，useCallback() 只是跳过了它
+
+快照 or 最新值的问题
+父组件通过props传值给子组件，子组件里如果绑定一个异步函数，在class组件里拿到的是最新值，在function组件拿到的是快照（前一次的值），这其实就是个经典的函数闭包问题：
+在异步函数执行前可以对闭包访问的自由变量进行快照捕获：实现快照功能
+在异步函数执行中可以通过ref读取最新的值
+参考：https://blog.csdn.net/sinat_17775997/article/details/103642536
+
+关于fiber架构render过程的理解
+1.FiberRoot和RootFiber的关系
+FiberRoot是连接容器container和根fiber对象的对象，它的current指向根fiber对象（RootFiber）
+RootFiber就是根fiber对象
+2.render过程有两颗fiber树，RootFiber和workInProgressRootFiber，他们通过alternate互相关联，并且在更新过程会切换
+3.render分三个阶段：beginWork（递），completeWork（归），commitRoot（更新真实dom）
+beginWork：生成新的 state，调用 render 创建子节点，连接当前节点与子节点；
+completeWork：依据 EffectTag 收集 Effect，构造 Effect List；
+commitRoot：根据effectList 里面的节点更新dom

@@ -1,0 +1,25 @@
+1.WebKit渲染引擎的渲染方式分为软件渲染和硬件渲染
+软件渲染比较简单，只有一层，占用内存少，但是网页更新时需要全部更新
+硬件渲染比较复杂，有多个图层，需要GPU合成，网页更新不需要全部更新，css3 GPU加速就是这种渲染
+具有以下特征的渲染对象需要硬件渲染：
+    1、RenderLayer具有CSS 3D属性或者CSS透视效果。
+    2、RenderLayer包含的RenderObject节点表示的是使用硬件加速的视频解码技术的HTML5 ”video”元素。
+    3、RenderLayer包含的RenderObject节点表示的是使用硬件加速的Canvas2D元素或者WebGL技术。
+    4、RenderLayer使用了CSS透明效果的动画或者CSS变换的动画。
+    5、RenderLayer使用了硬件加速的CSSfilters技术。
+    6、RenderLayer使用了剪裁(clip)或者反射(reflection)属性，并且它的后代中包括了一个合成层。
+    7、RenderLayer有一个Z坐标比自己小的兄弟节点，该节点是一个合成层
+参考：https://www.cnblogs.com/xiaohuochai/p/9174471.html
+2.浏览器的事件循环
+事件循环event loop是属于浏览器渲染进程的主线程，主线程包括js逻辑和UI渲染两部分按照顺序发生，即同一时间只能存在一个，js是单线程就是指的这个主线程。js被设计成单线程就是因为要保证页面的正确显示，不出现冲突。
+一次事件循环的执行顺序一个宏任务>若干个微任务>渲染任务，循环频率理想情况下和系统屏幕的刷新频率一致
+渲染进程出流主线程外还有光栅线程、合成线程，还有工作线程即webworker运行的线程
+2.浏览器是不是每次都会刷新屏幕显示图像？
+不是，浏览器只在屏幕有样式更改，布局改动，以及回流时才刷新屏幕显示图像，但是渲染任务每次都会执行
+3.js宏任务、微任务和渲染的关系
+在一个事件循环中浏览器的渲染任务是跟在宏任务或者微任务之后的（如果有微任务）
+参考：https://blog.csdn.net/ch834301/article/details/114826592
+4.raf属于宏任务吗？
+既不是宏任务又不是微任务，它在渲染任务中的重绘reflow之前执行
+参考：https://blog.csdn.net/weixin_33874713/article/details/91436408
+https://github.com/ginobilee/blog/issues/6
