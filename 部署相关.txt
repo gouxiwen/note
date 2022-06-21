@@ -15,6 +15,8 @@ nginx -t
 cd /etc/nginx/
 工程配置在conf.d目录，进入查看
 cd conf.d
+重启ng
+nginx -s reload
 
 打包脚本：
 #!/bin/sh
@@ -192,12 +194,16 @@ docker image inspect 是docker image的子级命令，查看镜像详细信息�
 Go模版
 Go语言的模板通过{{}}来包含需要在渲染时被替换的字段，{{.}}表示当前的对象，这和Java或者C++中的this类似，如果要访问当前对象的字段通过{{.FieldName}},但是需要注意一点：这个字段必须是导出的(字段首字母必须是大写的),否则在渲染的时候就会报错
 
+数组
+${#array[*]} 数组长度
+${array[@]} 数组所有元素
+
+参数
 args=($@)
 fn=$1
 fn_args=${args[@]:1}
 $@表示所有参数，是个数组
 $1表示第一个参数
-array[@]表示数组的所有元素
 ${var:num}，shell在var中提取第num个字符到末尾的所有字符
 
 # 设置环境变量
