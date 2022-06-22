@@ -143,7 +143,7 @@ beginWork：生成新的 state，调用 render 创建子节点，连接当前节
 completeWork：依据 EffectTag 收集 Effect，构造 Effect List；
 commitRoot：根据effectList 里面的节点更新dom
 
-使用useState更新流程
+使用useState更新流程在源码中的调用栈
 const [hook.memoizedState, dispatch] = useState调用关系：
 useState->ReactCurrentDispatcher.current.useState // 源码位置ReactHooks.js
 ReactCurrentDispatcher.current.useState->mountState // 源码位置ReactFiberHooks.new.js
@@ -151,3 +151,18 @@ mountState中返回dispatch，dispatch->dispatchSetState // 源码位置ReactFib
 dispatchSetState中创建hooks更新队列，并且创建更新任务：root = scheduleUpdateOnFiber(fiber, lane, eventTime);  // 源码位置ReactFiberHooks.new.js
 scheduleUpdateOnFiber中追溯FiberRoot：root = markUpdateLaneFromFiberToRoot(fiber, lane);生成调度任务：ensureRootIsScheduled(root, eventTime); // 源码位置ReactFiberWorkLoop.new.js
 ensureRootIsScheduled中根据优先级确定任务是否开始，开始任务调用performSyncWorkOnRoot.bind(null, root) // 源码位置ReactFiberWorkLoop.new.js
+每个任务会调用beginWork，beginWork中更新阶段这里会尝试复用节点，通过比较新旧props，如果需要更新就会重新执行组件render // 源码位置ReactFiberBeginWork.new.js
+
+以上的过程会分成三层结构
+Scheduler(调度器)
+Reconciler(协调器)
+Renderer(渲染器)
+
+简单描述一下流程：
+1.setState产生一个更新，更新内容为：state.count从1变为2
+2.更新被交给Scheduler，Scheduler发现没有其他更高优先任务，就将该任务交给Reconciler
+3.Reconciler接到任务，开始遍历Virtual DOM，判断哪些Virtual DOM需要更新，为需要更新的Virtual DOM打上标记
+4.Reconciler遍历完所有Virtual DOM，通知Renderer
+5.Renderer根据Virtual DOM的标记执行对应节点操作
+
+参考文章：https://www.shangyexinzhi.com/article/4775271.html
