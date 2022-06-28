@@ -7,31 +7,78 @@ Padding callbacks： 队列中挂起的回调执行。如果之前的迭代推�
 close callbacks： 例如 socket.on('close', ... );
 
 每个阶段都有自己的队列
-process.nextTick在每个阶段之后执行
+process.nextTick在每个阶段之后执行，事件循环期间，执行任何一个队列之前，都要检查微任务队列是否被清空。先执行process.nextTick,再执行Promise.then。
 
-poll阶段会议适当进行阻塞的理解，当没有timers且没有setImmediate的回调时，会在此进行等待，等待系统处理完的I/O回调并继续执行，直到回调数到达系统上限后才进入到下一阶段。
+这里面比较关键的是poll阶段：
+
+poll队列不为空的时候，事件循环会遍历队列并同步执行回调，直到队列清空或执行回调数达到系统上限。
+poll队列为空的时候，就会有两种情况：
+如果代码中存在setImmediate()回调，那么事件循环直接结束poll阶段进入check阶段来执行check队列里的回调；
+如果不存在setImmediate()回调，会等待回调被加入到队列中并立即执行回调，这里同样会有个超时时间设置防止一直等待下去，如果规定时间内有定时器函数进入队列，则返回到timer阶段，执行定时器回调，否则在poll阶段等待回调进入队列。
+
+poll阶段会适当进行阻塞的理解，当没有timers且没有setImmediate的回调时，会在此进行等待，等待系统处理完的I/O回调并继续执行，直到等待时间大于超时时间或者回调数到达系统上限后才进入到下一阶段。
 
 
 2.setImmediate和setTimeout
 node的libuv中一次事件循环有六个阶段，其中timers阶段是用于执行setTimeout事件的，check阶段是用于执行setImmediate事件的。
-对于以下代码
+对于以下代码（主线程中执行）
+setTimeout(() => {
+  console.log('setTimeout');
+}, 0);
+ 
 setImmediate(() => {
-	console.log('3'); 
-  Promise.resolve().then(() => console.log('4'));
-});
-setTimeout(()=>{
-  console.log('5');
-  Promise.resolve().then(() => console.log('6'));
+  console.log('setImmediate');
 });
 
-它们两个的执行顺序不一定。
+多次运行，两句console.log打印的顺序不定。
+这是因为setTimeout的间隔数最小填1，虽然下边代码填了0。但实际计算机执行当1ms算。（这里注意和浏览器的计时器区分。在浏览器中，setInterval的最小间隔数为10ms，小于10ms则会被设置为10；设备供电状态下，间隔最小为16.6ms。）
 
-对于setImmediate的延时有时比setTimeout的要长，由于setImmediate要先监控调用栈，若调用栈为空才压栈，那么在压栈之前event loop已经将setTimeout事件的回调函数压栈了。
+以上代码，主线程运行的时候，setTimeout函数调用，计时器线程增加一个定时器任务。setImmediate函数调用后，其回调函数立即push到check队列。主线程执行完毕。
+
+eventloop判断时，发现timers和check队列有内容，进入异步轮询：
+
+首先进入timers阶段
+第一种情况：等到了timers里这段时间，可能还没有1ms的时间，定时器任务间隔时间的条件不成立所以timers里还没有回调函数。继续向下到了check队列里，这时候setImmediate的回调函数早已等候多时，直接执行。而再下次eventloop到达timers队列，定时器也早已成熟，才会执行setTimeout的回调任务。于是顺序就是「setImmediate -> setTimeout」。
+
+第二种情况：但也有可能到了timers阶段时，超过了1ms。于是计算定时器条件成立，setTimeout的回调函数被直接执行。eventloop再向下到达check队列执行setImmediate的回调。最终顺序就是「setTimeout -> setImmediate」了。
+
+// 说说下边代码的执行顺序，先打印哪个？
+const fs = require('fs')
+fs.readFile('./poll.js', () => {
+  setTimeout(() => console.log('setTimeout'), 0)
+  setImmediate(() => console.log('setImmediate'))
+})
+
+上边这种代码逻辑，不管执行多少次，肯定都是先执行setImmediate。
+因为fs各个函数的回调是放在poll队列的。当程序holding在poll队列后，出现回调立即执行。
+回调内执行setTimeout和setImmediate的函数后，check队列立即增加了回调。
+回调执行完毕，轮询检查其他队列有内容，程序结束poll队列的holding向下执行。
+check是poll阶段的紧接着的下一个。所以在向下的过程中，先执行check阶段内的回调，也就是先打印setImmediate。
+到下一轮循环，到达timers队列，检查setTimeout计时器符合条件，则定时器回调被执行。
 
 1.宏任务和微任务的执行机制
 v11.x之前是先执行完所有的宏任务，再执行所有的微任务
-v11.x之后是宏任务-改宏任务下的微任务-下个宏任务-...，和浏览器一样
-
+v11.x之后是宏任务-该宏任务下的微任务-下个宏任务-...，和浏览器一样
+如果执行微任务中又生成一个微任务，则会立即添加到当前微任务队列，按照顺序执行。
+process.nextTick和promise.then都属于微任务，但process.nextTick优先promise.then的执行，对于一下代码：
+process.nextTick(() => {
+  console.log('nextTick 1');
+  process.nextTick(() => {
+    console.log('nextTick 2');
+  })
+})
+Promise.resolve().then(() => {
+  console.log('promise 1');
+  process.nextTick(() => {
+    console.log('nextTick in promise');
+  })
+})
+执行结果是：
+nextTick 1
+nextTick 2
+promise 1
+nextTick in promise
+可见，微任务队列也分process.nextTick队列和promise.then队列，执行下一个宏任务前会先检查process.nextTick队列，如果process.nextTick队列为空会继续检查promise.then队列，直到索引微任务队列为空才会执行下一个宏任务。
 
 
 3.由于node的事件驱动机制，因此node天生适合做I/O密集型的服务，对于cup密集型的服务，node v10.5.0以后有了工作线程可以使用。

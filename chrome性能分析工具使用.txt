@@ -23,5 +23,5 @@ chrome性能分析工具可以用来分析网页在某一时间段内的cpu使�
 WASD可以控制选择区域的放大缩小和左右移动
 
 
-什么事强制回流
+什么是强制回流
 在改变了样式后立即去读取dom的computed样式或者layout属性（比如el.style.backgroundImage或者el.offsetWidth），会强制浏览器提前执行布局。

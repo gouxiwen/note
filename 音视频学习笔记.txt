@@ -11,7 +11,7 @@ hls协议是以http协议为基础的，有一个视频文件播放列表文件m
 <source src="http://10.10.5.119/live/livestream.m3u8" type='application/x-mpegURL'>
 对于直播流，m3u8文件会在播放过程中定期更新（浏览器自动完成），参考：https://blog.csdn.net/qq_39969226/article/details/105634280
 
-rtsp，实时流传输协议，是TCP/IP协议体系中的一个应用层协议，浏览器不支持播放，需要按照插件
+rtsp，实时流传输协议，是TCP/IP协议体系中的一个应用层协议，浏览器不支持播放，需要安装插件
 
 MPEG-DASH需要先下载一个媒体演示描述 (MPD) 文件，xml格式，然后根据描述信息分段下载视频文件，实现需要借助dash.js库或者手动实现https://blog.csdn.net/haima1998/article/details/38865023
 
