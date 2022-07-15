@@ -85,3 +85,6 @@ import {getLCP, getFID, getCLS} from 'web-vitals';
 getCLS(console.log);
 getFID(console.log);
 getLCP(console.log);
+
+
+参考：https://blog.csdn.net/doomliu/article/details/124771351

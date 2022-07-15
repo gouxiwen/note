@@ -5,11 +5,40 @@ lerna可以用来管理多项目间互相依赖，复用公共模块
 生成的lerna.json文件，lerna默认使用npm安装包，可以修改这个文件进行改变，yarn在1.0版本之后提供了workspaces的功能，该功能从更底层的地方提供了依赖提升，做的事情跟lerna如出一辙。把它跟lerna放在一起看，简直就像是为lerna量身定做一样。因此，推荐在lerna中搭配yarn一起使用。
 lerna.json中
  "useWorkspaces": true,
-  "npmClient": "yarn"
+  "npmClient": "yarn" // 使用yarn做为安装工具
+
 主项目package.json中
   "workspaces": [
     "packages/*"
   ]
-lerna add安装模块，默认情况下执行完Lerna add的执行逻辑是添加依赖到子项目的package.json里然后自动执行的安装命令lerna bootstrap安装模块，同时修改所有子项目的lock文件，可以通过修改lerna.json来避免修改lock文件
-使用yarn做为安装工具后执行lerna add 会自动提升依赖
-同样lerna bootstrap加hoist参数也可以提升模块到主项目的modules中，但是package.json信息还是保留在子项目中
+
+lerna run command会在所有workspaces下执行脚本
+如：
+lerna run start会启动所有workspaces下的start脚本
+
+安装依赖
+首次安装依赖 lerna bootstrap，做以下事情：
+1.npm install每个包所有的外部依赖。
+2.将所有相互依赖的 Lerna package符号链接在一起。
+3.在所有引导包中运行npm run prepublish(除非传入了--ignore-prepublish)。
+4.在所有引导包中运行npm run prepare。
+
+lerna bootstrap加hoist参数也可以提升模块到主项目的modules中，但是package.json信息还是保留在子项目中
+lerna bootstrap --hoist
+提升以后所有 package 使用同一个 yarn.lock，更少造成冲突且易于审查
+
+安装dependencies依赖 yarn add -W [pkg]
+安装devDependencies依赖 yarn add -D -W [pkg]
+-W 的含义： 安装依赖到 workspace
+-D的含义： 安装依赖到devDependencies
+
+lerna add安装模块
+默认情况下执行完lerna add的执行逻辑是添加依赖到子项目的package.json里然后自动执行的安装命令lerna bootstrap安装模块，同时修改所有子项目的lock文件，可以通过修改lerna.json来避免修改lock文件，可以通过--no-bootstrap参数跳过lerna bootstrap。与yarn add的区别是一次只能安装一个包。
+
+
+使用yarn做为安装工具后执行lerna add会自动提升依赖
+使用yarn做为安装工具后lerna bootstrap不支持hoist参数（可能因为不需要）
+
+分工：
+Yarn 负责管理依赖，workspace 会自动对 package 的引用 ，设置软链接（symlink）,并且软链接仅在当前 workspace 中生效。 
+Lerna 负责版本的发布工作，对 package 相互之间的依赖，做好版本管理。
