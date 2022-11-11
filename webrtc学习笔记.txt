@@ -70,4 +70,38 @@ addTrack会添加一个轨道到轨道集，此方法可能返回一个新的发
 4.新的收发器的direction被设置为"sendrecv"。
 5.新的收发器添加到peer的收发器集。
 
-如果需要发悚音视频数据。就用addTrack
+如果需要发送音视频数据。就用addTrack
+
+Webrtc连接状态管理
+iceconnectionstate和connectionstate，它们对应于两个事件：RTCPeerConnection.iceconnectionstatechange和RTCPeerConnection.connectionstatechange。
+
+iceconnectionstate表示ICE代理的状态及其与ICE服务器（STUN、TURN）的连接
+connectionstate表示rtc ice所有传输组件(RTCIceTransport or RTCDtlsTransport(底层传输)类型)的聚合状态
+connectionstate依赖于iceconnectionstate
+
+一般用connectionstate来提示页面的显示，iceconnectionstate输出日志辅助了解整体连接状态。
+connectionstate有六种取值：new, connecting, connected, disconnected, failed, and closed
+pc.onconnectionstatechange = (ev) => {
+  switch(pc.connectionState) {
+    case "new":
+    case "checking":
+      setOnlineStatus("Connecting…");
+      break;
+    case "connected":
+      setOnlineStatus("Online");
+      break;
+    case "disconnected":
+      setOnlineStatus("Disconnecting…");
+      break;
+    case "closed":
+      setOnlineStatus("Offline");
+      break;
+    case "failed":
+      setOnlineStatus("Error");
+      break;
+    default:
+      setOnlineStatus("Unknown");
+      break;
+  }
+}
+iceconnectionstate有七种取值new, checking, connected, completed, failed, disconnected, and closed.

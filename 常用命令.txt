@@ -1,5 +1,14 @@
-open -n /Applications/Google\ Chrome.app --args --disable-web-security --user-data-dir=/Users/getech/Documents/MyChromeDevUserData/
+打开谷歌跨域浏览器默认版本
+open -n /Applications/Google\ Chrome.app --args --disable-web-security --user-data-dir=存放数据目录
+打开谷歌跨域浏览器指定版本,并禁用跨域限制
+open -n /Applications/Google\ Chrome90.app --args --disable-web-security --user-data-dir=存放数据目录
 
+禁止谷歌浏览器升级
+cd ~/Library/Google
+sudo chown root:wheel GoogleSoftwareUpdate // 改变升级文件夹所有权，使得谷歌没有写入权限
+
+恢复升级
+sudo chown anker:staff GoogleSoftwareUpdate
 
 zip -r app.nw ./*
 

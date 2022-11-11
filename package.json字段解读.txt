@@ -5,3 +5,12 @@ scripts: {
 }
 
 type: 'commonjs|module' 是否是ESM包，默认是commonjs
+
+
+dependencies: {
+	"rst2html": "github:thoward/rst2html#990cb89f2a300cdd9151790be377c4c0840df809", // 表示下载github上的项目thoward/rst2html的提交id为990cb89f2a300cdd9151790be377c4c0840df809的代码
+	"tether-drop": "https://github.com/torkelo/drop", // 表示下载github上的代码
+
+	 "sass": "link:./public/sass", // 表示创建一个指向本项目下的某个目录的一个软链接
+	"@grafana/ui": "workspace:*", // 表示在lerna管理的Monorepo（多包单库）下创建一个指向包名为@grafana/ui的软链接
+} 

@@ -46,3 +46,32 @@ import Col from 'react-bootstrap/lib/Col';
 同样支持样式按需加载
 
 特别说明：基于ES modules导出的模块原则上是不需要转换的（因为现代打包器，如webpack >= 2.x,都支持Tree-shaking），但是如果需要按需加载样式的话，还是需要使用以上的插件的，如antd
+
+splitChunks中某些配置项的说明：
+默认缓存分组cacheGroups：
+defaultVendors: {
+          test: /[\\/]node_modules[\\/].*[jt]sx?$/,
+          chunks: 'initial',
+          priority: -10,
+          reuseExistingChunk: true,
+          enforce: true,
+        },
+        default: {
+          priority: -20,
+          chunks: 'all',
+          test: /.*[jt]sx?$/,
+          reuseExistingChunk: true,
+        },
+filename:
+可以用于全局也可以用于某个分组中（全局中设置不推荐使用，因为如果chunks不是'initial'会报错）
+重写chuck的filename,只对initial chunk有效，可以使用占位符
+没有配置则取out.filename，分离出来的chuck的[name]取[id]值
+
+name：
+可以用于全局也可以用于某个分组中
+默认为false
+将按照提取的chunks自动命名，规则取filename配置，这样可以拆分出多个小模块（推荐使用）
+如果设置为固定名称，则会将所有符合条件的模块全部拆分到一个模块，导致拆分出的模块体积变大，生产中不推荐使用
+
+automaticNameDelimiter：
+若自定义了拆分规则，则在原有chunk基础上再次拆出来的chunk用automaticNameDelimiter定义的符号连接，如：app~newChunk.js

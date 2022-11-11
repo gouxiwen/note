@@ -1,7 +1,8 @@
 采样率：定义了每秒从连续信号中提取并组成离散信号的采样个数，单位是Hz，是录制设备录制时用到的参数
-码率：也叫比特率，同等分辨率的视频传输码率越大越清晰，视频也越大，耗费网络越多，单位是kbps即千位每秒。
+码率：也叫比特率，同等分辨率的视频传输码率越大越清晰，视频也越大，耗费网络越多，单位是kbps即千位每秒， 1kbps = 1024 bps。
+分辨率：视频在宽和高上大像素数，分辨率换算成码率和视频YUV格式有关，如YUV是420，对于未经压缩的视频，码率=宽x高x1.5x8 bps
 码率和采样率有正相关。
-宽带的单位是位每秒，1M宽带表示1024K位每秒，换算成字节是1024/8 = 128 KB/s
+宽带的单位是位每秒，1M宽带表示1024千位每秒，换算成字节是1024/8 = 128 KB/s
 由于宽带和码率的单位一样，所以码率*帧速率=视频每秒需要的宽带
 
 Web主流的视频直播方案有hls、rtsp、MPEG-DASH和rtpm
@@ -19,9 +20,10 @@ rtpm是一种实时传输协议，一般传输的是 flv，f4v 格式流，延�
 
 可以借助videojs库或者其他flash库实现播放，V5.20.4是最后一个版本支持，V6.x.x以后的版本核心库不支持了，因为flash正在被淘汰，chrome88开始不支持flash
 <source src="rtmp://live.hkstv.hk.lxdns.com/live/hks" type="rtmp/flv">
-也可以借助flv.js库播放flv格式的流，原理是内部转化格式fmp4格式，再通过 Media Source Extension（MSE） 喂给浏览器的 video 标签。
 
-HTTP-FLV协议是rtpm协议的升级，采用http长连接，不用分片，延时低，结合了hls和rtpm的特点。
+HTTP-FLV协议是rtpm协议的升级，将音视频数据封装成FLV格式，然后通过HTTP协议传输给客户端，采用http长连接，不用分片，延时低，结合了hls和rtpm的特点。
+可以借助flv.js库播放flv格式的流，原理是内部转化格式fmp4格式，再通过 Media Source Extension（MSE） 喂给浏览器的 video 标签。
+
 
 hls.js和dash.js的实现原理也都是通过MSE实现的
 
@@ -36,3 +38,35 @@ Offer端可以任意添加新流或者新轨道，answer端都可以获取
 浏览器如何播放H265编码的视频？
 目前浏览器对H265对支持还很少，如果要播放就需要libde265.js，libde265.js是一个通过JS来解码H.265视频的库，它通过将 视频的 frame data 转化为 rgba 像素，然后绘制到 Canvas 上。
 demo地址：https://github.com/strukturag/libde265.js/blob/master/demo/libde265.html
+
+html5 H5中的video标签加载视频有一种原生的支持方式，而且video会自动判断服务端是不是支持断点传输服务（Http状态码206是一种专门的响应码，表示服务端内容还没有传输结束，告诉客户端继续请求），不支持就等待整个src加载完，支持就一部分一部分下载，byte serving，progressive download。
+
+如果支持断点传输 video标签播放视频时会缓存一段就开始播放，如果暂停就只会缓存一小段，并不会缓存完整个视频
+
+断点传输
+客户端
+增加请求头（video标签自己实现）：
+range: bytes=1901568-2559999。
+
+服务端配置
+http code返回206
+响应头增加一些关键字：
+文件大小 Content-Length
+本次返回的字节范围 Content-Range
+content-type video/mp4 
+
+General: 
+Request Method: GET 
+Status Code: 206 
+  
+Request Headers： 
+range: bytes=1901568-2559999  
+
+Response Headers: 
+cache-control: max-age=10368000
+Content-Length: 658432 
+Content-Range: bytes 1901568-2559999/4499732
+content-type: video/mp4 
+date: Tue, 02 Feb 2021 15:06:20 GMT 
+etag: "586fabca-44a914" expires: Wed, 02 Jun 2021 15:06:20 GMT 
+last-modified: Fri, 06 Jan 2017 14:38:02 GMT

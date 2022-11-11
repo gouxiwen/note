@@ -35,6 +35,9 @@ lerna bootstrap --hoist
 lerna add安装模块
 默认情况下执行完lerna add的执行逻辑是添加依赖到子项目的package.json里然后自动执行的安装命令lerna bootstrap安装模块，同时修改所有子项目的lock文件，可以通过修改lerna.json来避免修改lock文件，可以通过--no-bootstrap参数跳过lerna bootstrap。与yarn add的区别是一次只能安装一个包。
 
+lerna ls检查公共模块
+package.json中"private": true表示私有模块
+
 
 使用yarn做为安装工具后执行lerna add会自动提升依赖
 使用yarn做为安装工具后lerna bootstrap不支持hoist参数（可能因为不需要）
