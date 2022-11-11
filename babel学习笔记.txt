@@ -1,0 +1,169 @@
+Babel中预设和插件的区别
+
+插件里定义了如何转换一个语法
+预设是将若干个插件组合起来，预设里还可以引入其他预设
+
+@babel/plugin-transform-runtime和@babel/runtime
+
+@babel/runtime中集成了语法转换过程中要用到的辅助函数的npm包，如果不引入使用，babel会为每个生成的文件都生产一份辅助函数，导致产生重复的函数。辅助函数位于@babel/runtime/helpers中
+
+@babel/runtime-corejs2、@babel/runtime-corejs3和@babel/runtime的关系
+@babel/runtime-corejs2和@babel/runtime-corejs3功能一样，只是针对不同的corejs版本（core-js2、core-js3），用来做API转换
+@babel/runtime-corejs3包含@babel/runtime的语法转换功能
+如果只想使用语法转换功能安装@babel/runtime，如果既想语法转换又想API转换，安装@babel/runtime-corejs3
+
+以上三个使用时选一个就行
+npm install @babel/runtime --save
+
+但是要配合另一个插件使用
+@babel/plugin-transform-runtime
+npm install @babel/plugin-transform-runtime --save-dev
+
+@babel/plugin-transform-runtime有三个作用：
+1.自动移除语法转换后内联的辅助函数（inline Babel helpers），使用@babel/runtime/helpers里的辅助函数来替代；
+
+2.当代码里使用了core-js的API，自动引入@babel/runtime-corejs3/core-js-stable/，以此来替代全局引入的core-js/stable;
+
+3.当代码里使用了Generator/async函数，自动引入@babel/runtime/regenerator，以此来替代全局引入的regenerator-runtime/runtime；
+
+作用1做语法转换
+作用2和3其实是在做API转换，对内置对象进行重命名，以防止污染全局环境。
+
+@babel/plugin-transform-runtime的配置项
+{
+"helpers": true,
+"corejs": false,
+"regenerator": true,
+"useESModules": false,
+"absoluteRuntime": false,
+"version": "7.0.0-beta.0"
+}
+
+在Babel6版本，该插件还有两个配置选项polyfill和useBuiltIns，在v7版本已经移除了，大家不需要再使用。
+
+参考：https://blog.csdn.net/weixin_42349568/article/details/125134880
+
+@babel/polyfill和core-js/stable
+从7.4.0版本后就用core-js/stable代替了polyfill，core-js/stable + regenerator-runtime/runtime 类似于以前的 @babel/polyfill
+
+@babel/plugin-transform-runtime和@babel/preset-env的使用区别
+都可以配置corejs自动按需加载polyfill（@babel/preset-env需要配置useBuiltIns: "usage"）
+但是
+@babel/preset-env加载的是core-js/modules/（属于core-js/stable）下的模块，并且引入后是直接修改全局变量的
+@babel/plugin-transform-runtime加载的是@babel/runtime-corejs3/core-js-stable/下的模块，引入以后赋值给一个本地变量，不会污染全局变量。这里也说明@babel/runtime-corejs3/core-js-stable/下的方法比core-js/stable下的更纯净（pure），不会污染全局。
+
+结论，@babel/preset-env虽然按需引入polyfill但是还是会污染全局，@babel/plugin-transform-runtime可以替代@babel/preset-env按需引入polyfill的功能，如下：
+module.exports = {
+    presets:[
+        [
+            "@babel/preset-env",
+        ]
+    ],
+    plugins: [
+        [
+            "@babel/plugin-transform-runtime",
+            {
+                "corejs": 3,
+            }
+        ]
+    ]
+};
+参考：https://www.jianshu.com/p/50e8a508ccc4
+
+@babel/register
+用于将 babel 在运行时注册到 node 的 require 模块下，支持我们在开发时在 node 环境下使用标准的 ES6 模块化语法以及一些node不支持的语法（虽然很少），使用最新的如 ES9、ES10 的语法糖，写出最潮的 js
+
+
+@babel/standalone
+提供了一种在浏览器等非node环境使用babel的简单方式，而不需要经过打包工具，在脚本引入，可以在运行时编译es2015，同样支持预设和插件
+
+@babel/parser
+将js代码解析成ast
+@babel/traverse
+遍历ast树，寻找节点
+@babel/types
+判断节点类型，根据需要找到对应的节点类型
+@babel/generator
+将处理后的ast转成目标代码
+@babel/code-frame
+标记错误位置
+@babel/template
+自定义模版功能，将模版内容替换为对应节点类型的值
+@babel/core
+语法转换，将最新版本的语法转为目标版本的语法（最低ES5），对于ESModul模块，只能转成CommonJS模块，浏览器不支持exports和require，所以需要打包工具模拟出来
+如webpack实现了__webpack_require__方法和exports对象
+```
+// 打包成了一个自执行函数 
+(function () { 
+  // 所有模块的路径及其执行函数对象，也可以通过参数传进来
+  var __webpack_modules__ = ({
+    // key:文件路径 value: 是一个函数 
+     "./index.js": function (module, exports, require) {
+        eval( 'var _a = require("./a.js");\n\nconsole.log(_a);\n\n\n//#sourceURL=webpack:///./index.js?')
+        },
+      "./a.js": function (module,exports, require) {
+        eval( '// var _b = require("./d.js");\n\nvar main = 'abcde';exports.main = main;\n\nconsole.log("hello word");\n\n\n//#sourceURL=webpack:///./index.js?' )
+        },
+      "./c.js": function (module,exports, require) {
+        eval( '// \n\nconsole.log("hello word");\n\n\n//#sourceURL=webpack:///./index.js?' )
+        },
+      "./d.js": function (module,exports, require) {
+        eval( '// \n\nconsole.log("hello word");\n\n\n//#sourceURL=webpack:///./index.js?' )
+        },
+      "./b.js": function (module,exports, require) {
+        eval( '// import c from "./c";\n\nconsole.log("hello word");\n\n\n//#sourceURL=webpack:///./index.js?' )
+        } 
+  })
+   // 缓存 
+   var __webpack_module_cache__ = {}
+
+   function __webpack_require__(moduleId) { 
+       // 模拟了一个require方法 原理：通过递归的方式不停的调用自己
+       if (__webpack_module_cache__[moduleId]) { 
+         return __webpack_module_cache__[moduleId].exports 
+        } 
+        var module = __webpack_module_cache__[moduleId] = {
+            i: moduleId, 
+            l: false, 
+            exports: {}
+        } 
+       __webpack_modules__[moduleId](module, module.exports, __webpack_require__)
+ 
+     module.l = true 
+     return module.exports 
+  }
+
+// __webpack_require__上还定义了三个方法
+
+/* webpack/runtime/make namespace object exports下挂载 __esModule 属性，用于标记是否是ES模块代码块 */
+(() => {
+		// define __esModule on exports
+		__webpack_require__.r = (exports) => {
+			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+			}
+			Object.defineProperty(exports, '__esModule', { value: true });
+		};
+	})();
+
+  /* webpack/runtime/define property getters 为 exports下的default属性设置了 getter 方法 */
+ 	(() => {
+ 		// define getter functions for harmony exports
+ 		__webpack_require__.d = (exports, definition) => {
+ 			for(var key in definition) {
+ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] }); // get: () => (__WEBPACK_DEFAULT_EXPORT__),当访问 exports.default 时，其值为 __WEBPACK_DEFAULT_EXPORT__也即是上文对应的 code 值
+ 				}
+ 			}
+ 		};
+ 	})();
+ 	
+ 	/* webpack/runtime/hasOwnProperty shorthand 对象的属性检测 */
+ 	(() => {
+ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+ 	})();
+ 
+   return __webpack_require__("./index.js")
+   })() 
+})
+```

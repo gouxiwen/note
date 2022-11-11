@@ -1,0 +1,13 @@
+安装 brew mitmweb
+启动
+mitmweb
+或
+mitmweb -p 8999
+手机安装证书
+先设置代理（同一wifi）
+然后默认浏览器访问
+http://mitm.it/
+下载证书
+安装证书（每个手机方式不一样）
+
+完成

@@ -1,0 +1,10 @@
+谷歌TenosrFlow开发者峰会2018上，发布了面向JavaScript开发者的全新机器学习框架 TensorFlow.js
+
+深度学习大致流程
+
+输入数据（图像，目标）和预期的结果
+通过神经网络进行大量训练
+训练完成就可以识别对应的图像得到预期的结果
+
+卷积神经网络（简称CNN）在图像分类、图像分割、目标检测等领域获得广泛应用。
+常用的轻量化网络结构：SqueezeNet、MobileNet、ShuffleNet、Xception

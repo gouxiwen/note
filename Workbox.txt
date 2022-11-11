@@ -1,0 +1,19 @@
+Workbox提供了两种生成sw的方法generateSW vs injectManifest
+如何选择？
+什么时候可以用generateSW？
+1. 要缓存打包后的资源，这些资源带有hash，事先并不知道打包后的名称
+2. 通过generateSW配置就可以实现的运行时缓存
+
+什么时候不使用generateSW？
+1. 想使用service worker的其他特性，如web push
+2. 需要导入其他脚步或者Workbox的其他模块来调整service worker
+
+什么时候使用injectManifest？
+1. 想要缓存资源，但是想自己编写service worker
+2. 无法通过 generateSW 的配置选项表达的复杂缓存或路由需求
+3. 想使用service worker的其他特性，如web push
+
+什么时候不使用injectManifest？
+1. 不想缓存资源
+2. 可以通过generateSW配置实现的功能
+3. 优先考虑易用性而不是灵活性

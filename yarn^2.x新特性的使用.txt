@@ -1,0 +1,62 @@
+目前 yarn 1.x 是经典版 (classic) 已经没有在开发了, 但还是有维护
+
+yarn 2.0 (berry 版) 时代是比较苦难的年代, 因为改版太大了, node_modules 直接没了. 所以很多 library 更不上.
+
+yarn 3.0 （canary版本）比较好一些.（推荐使用）
+
+Yarn2.0版本新加了Plug'n'Play (PnP)特性，增加了安装的速度的速度，PnP 的具体工作原理是，作为把依赖从缓存拷贝到 node_modules 的替代方案，Yarn 会维护一张静态映射表。
+同时yarn版本是跟着项目的，也就是每个项目有自己的yarn版本。
+
+如何使用
+
+默认安装的yarn还是1.x版本，需要在其基础上升级
+1.进入工程目录
+2.升级yarn
+// 先升级到大众版本最新，版本太低安装会失败
+yarn set version latest
+// 然后升级到最新的canary版
+yarn set version canary // 可以选择版本，这里指最新的canary版
+// 然后可以选择切回3.x
+yarn set version 3.x
+
+yarn set version from sources // pre-release # 从master分支升级版本 - 尝鲜
+
+yarn set version from sources --branch 1211 // target specify branch# 从其他分支升级版本 - 需要解决特定需求
+升级以后还可以降级
+yarn set version classic #降到1.x
+
+yarn install // 执行安装
+
+执行完之后，工程根目录下会新增多了个.pnp.cjs(.pnp.js)的文件、一个.yarn目录及一个.yarnrc.yml的配置文件：
+
+.yarn目录：存放Yarn ^2.x的具体执行文件、由Yarn ^2.x安装的依赖等
+.yarnrc.yml配置文件：此工程针对Yarn 2的具体配置文件，和.npmrc、.yarnrc功能类似，这里要注意Yarn ^2.x不会再读取.npmrc、.yarnrc中的配置，同时文件扩展也必须是yml，.yarnrc不能生效
+
+# .yarn目录初始结构
+.yarn
+├── releases
+│   └── yarn-版本号.js
+
+# .yarnrc.yml初始结构
+yarnPath: ".yarn/releases/yarn-版本号.js"
+# 如果仍然跑不起来，可以用下面的配置完全按照以前的依赖按照方式
+nodeLinker: "node-modules"
+
+.yarn和.yarnrc.yml都应该提交到仓库。
+
+执行yarn install后node_modules下不在生成依赖包，下载的包在.yarn/cache下，并且是zip包。
+
+为了让 VS Code 知道 TypeScript, ESLint, Prettier等等模块
+需要安装 yarn sdk
+yarn dlx @yarnpkg/sdks vscode
+由于编辑器不识别zip包，所以默认情况下会找不到模块，所以还要安装个vscode扩展插件ZipFS
+
+参考：
+http://loveky.github.io/2019/02/11/yarn-pnp/
+https://blog.csdn.net/u010730126/article/details/107857940
+https://www.cnblogs.com/keatkeat/p/16259314.html
+https://yarnpkg.com/features/pnp#native-support
+https://dev.to/arcanis/yarn-3-0-performances-esbuild-better-patches-e07
+
+
+
