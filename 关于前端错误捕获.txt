@@ -6,7 +6,7 @@ window.onerror事件，全局运行时错误时触发，但不能捕获语法错
 *   lineno：发生错误的行号（数字）
 *   colno：发生错误的列号（数字）
 *   error：Error对象
-可以组织默认事件，即出发系统错误
+可以阻止默认事件，即触发系统错误
 
 window.addEventListener('error')功能和window.onerro类似，但返回参数只有一个，不能阻止默认事件，可以捕获资源加载错误
 

@@ -43,9 +43,9 @@ saga的action还是一个普通的对象，但是这个action不是直接作用�
 thunk
 react-redux的所有中间件的结构有三层函数：
 
-function middleware(store) { // 这一层会在applyMiddleware里自动执行，middlewares.map(middleware => middleware(middlewareAPI))
-  return function (next) { // 这一层在compose函数里执行，compose(a,b,c)(...arg)，next是右边函数的返回值，或者原始store的dispatch
-    return function (action) { // 这一层在业务代码中执行（如果这是第一个中间件）,dispatch(对象或者函数)，或者被前一个中间件当作next调用
+function middleware(middleApi) { // 这一层会在applyMiddleware里自动执行，middlewares.map(middleware => middleware(middleApi))
+  return function (next) { // 这一层在compose函数里执行，compose(a,b,c)(...arg)，next是右边中间件函数的返回值，或者原始store的dispatch（如果是最后中间件（最右边））
+    return function (action) { // 这一层在业务代码中执行（如果这是第一个中间件（最左边）,dispatch(对象或者函数)，或者被前一个（左边）中间件当作next调用
       // 返回结果
       let result = next(action);
       return result
@@ -82,24 +82,39 @@ a返回
 
 thunk中间件如下：
 
-function thunk(store) {
+function thunk(middleApi) {
   return function (next) {
-    // 以下返回的函数就是业务中的dispatch
+    // 以下返回的函数会传递给前一个（左边）中间件作为参数或者业务中的newDispatch(action)（如果是第一个（最左边）的情况下）
     return function (action) {
-      // 从store中解构出dispatch, getState
-      const { dispatch, getState } = store;
+      // 从middleApi中解构出dispatch, getState
+      const { dispatch, getState } = middleApi;
 
       // 如果action是函数，将它拿出来运行，参数就是dispatch和getState
       if (typeof action === 'function') {
-        return action(dispatch, getState); // 这里把原始的dispatch传给业务代码，然后直接return了，看来thunk中间件只能放在最后一个
+        return action(dispatch, getState);
+        // 这里把原始的dispatch传给业务代码，然后直接return了
       }
-
       // 否则按照普通action处理
-      let result = next(action);
+      const result = next(action);
       return result
     }
   }
 }
+
+// 从上面看来thunk中间件只能放在最后一个（最右边）的原因，因为这里没法再调用next了。
+// 然而事实并不是这样的，真实使用中thunk并没有限制，这是为什么？
+// 原因是middleApi中的dispatch并不是store.dispatch，而是dispatch: (...args) => newDispatch(...args)
+// 即上文applyMiddleware的实现中的：
+const middleApi = {
+  getState,
+  dispatch
+}
+// 应该是：
+const middleApi = {
+  getState,
+  dispatch: (...args) => newDispatch(...args)
+}
+// 这样从middleApi拿到的dispatch在执行的时候就可以拿到compose返回的newDispatch了
 
 Saga是在业务和真正的dispatch之间做了一层代理，利用事件监听业务的action，然后利用生成器函数可以暂停的特性实现了异步操作，封装了一些自己特有的方法，put，call，all，fork，takeEvery，takeLatest
 
@@ -112,10 +127,10 @@ Saga复杂度高，但是扩展性高
 
 React组件挂在与更新中可中断渲染的原理：
 核心是fiber架构，fiber是一种数据结构，用来描述组件对象，是链表结构，有child,sibling,return三个指针，分别代表大儿子，兄弟和父亲，关联起了来整个组件树，使得遍历组件树可以暂停，不用每次从头开始。
-React将每个组件处理成一个工作单元nextUnitOfWork，没处理完一个单元就顺着fiber向下寻找下一个单元（先是大儿子，然后是兄弟，最后返回父亲），然后利用requestIdleCallback（在浏览器空闲时）执行。
+React将每个组件处理成一个工作单元nextUnitOfWork，每处理完一个单元就顺着fiber向下寻找下一个单元（先是大儿子，然后是兄弟，最后返回父亲），然后利用requestIdleCallback（在浏览器空闲时）执行。
 Fiber解决的并不是组件的渲染/更新速度的问题，而解决的是防止长时间的深层组件渲染会阻塞其他优先级更高的事件的问题，如鼠标事件，提升交互体验。
 
-目前 requestIdleCallback 目前只有Chrome支持。所以目前 React 自己实现了一个。它利用MessageChannel 模拟将回调延迟到'绘制操作'之后执行
+目前 requestIdleCallback 目前只有Chrome支持。所以目前 React自己实现了一个。它利用MessageChannel模拟将回调延迟到'绘制操作'之后执行。MessageChannel实现时间切片（Schedule【调度】）的原理：https://blog.csdn.net/qq_20567691/article/details/126755232
 
 扩展：
 关于requestIdleCallback的原理

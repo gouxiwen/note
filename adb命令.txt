@@ -1,9 +1,11 @@
-adb shell 进入设备
-adb devices 查看设备
+
+adb devices //查看设备
+adb shell // 进入设备
 adb kill-server 杀死服务
 adb shell /userdata/bin/p2p_client 启动p2p终端
 adb push ./demo /userdata 推文件
 
 
 
-出流设备IP：192.168.2.248
+重启linux
+reboot

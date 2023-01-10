@@ -21,7 +21,8 @@ rtpm是一种实时传输协议，一般传输的是 flv，f4v 格式流，延�
 可以借助videojs库或者其他flash库实现播放，V5.20.4是最后一个版本支持，V6.x.x以后的版本核心库不支持了，因为flash正在被淘汰，chrome88开始不支持flash
 <source src="rtmp://live.hkstv.hk.lxdns.com/live/hks" type="rtmp/flv">
 
-HTTP-FLV协议是rtpm协议的升级，将音视频数据封装成FLV格式，然后通过HTTP协议传输给客户端，采用http长连接，不用分片，延时低，结合了hls和rtpm的特点。
+HTTP-FLV协议是rtpm协议的升级，将音视频数据封装成FLV格式，然后通过HTTP协议传输给客户端，采用http长连接，不用分片，延时低，结合了hls和rtpm的特点。http长连接的实现原理是HTTP协议中有个约定：content-length字段，http的body部分的长度服务器回复http请求的时候如果有这个字段，客户端就接收这个长度的数据然后就认为数据传输完成了，如果服务器回复http请求中没有这个字段，客户端就一直接收数据，直到服务器跟客户端的socket连接断开。
+
 可以借助flv.js库播放flv格式的流，原理是内部转化格式fmp4格式，再通过 Media Source Extension（MSE） 喂给浏览器的 video 标签。
 
 

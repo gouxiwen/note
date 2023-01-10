@@ -1,0 +1,6 @@
+\x和\u都用来表示unicod字符
+\x 后跟 2 个十六进制符号，表示一个字节的 内码
+document.write("\x41"); //A
+\u 后跟 4 个十六进制符号，表示一个 unicode 字符
+document.write("\u0041"); //A
+\x 一般表示单子节字符，\u一般表示多子节字符

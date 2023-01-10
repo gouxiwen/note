@@ -1,7 +1,16 @@
 打开谷歌跨域浏览器默认版本
+Mac
 open -n /Applications/Google\ Chrome.app --args --disable-web-security --user-data-dir=存放数据目录
 打开谷歌跨域浏览器指定版本,并禁用跨域限制
 open -n /Applications/Google\ Chrome90.app --args --disable-web-security --user-data-dir=存放数据目录
+win
+chrome.exe --args --disable-web-security --user-data-dir=存放数据目录
+
+chrome.exe --args --force-fieldtrials="WebRTC-SpsPpsIdrIsH264Keyframe/Enabled/“
+这个参数的作用：
+是否校验 Sps/Pps，当缺失 Sps/Pps 的时候是否被认为是 IDR帧， 默认是false，不校验。
+不校验带来的问题：
+假如一个 IDR帧的 Sps/Pps 包发生丢包, 在这样的逻辑下是有可能进行解码，因为缺少 Sps/Pps 信息, 解码器内部会以普通的 I帧进行处理, 不会清空 DPB(Decoded Picture Buffer参考帧列表)，就可能会出现灰屏、花屏、马赛克问题
 
 禁止谷歌浏览器升级
 cd ~/Library/Google
