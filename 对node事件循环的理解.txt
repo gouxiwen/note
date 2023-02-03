@@ -31,7 +31,7 @@ setImmediate(() => {
 });
 
 多次运行，两句console.log打印的顺序不定。
-这是因为setTimeout的间隔数最小填1，虽然下边代码填了0。但实际计算机执行当1ms算。（这里注意和浏览器的计时器区分。在浏览器中，setInterval的最小间隔数为10ms，小于10ms则会被设置为10；设备供电状态下，间隔最小为16.6ms。）
+这是因为setTimeout的间隔数最小填1，虽然下边代码填了0。但实际计算机执行当1ms算。（这里注意和浏览器的计时器区分。在浏览器中，setTimeout的最短时间间隔是4毫秒，setInterval的最小间隔数为10ms，小于10ms则会被设置为10；电池供电状态下，间隔最小为16.6ms。为了节电，对于那些不处于当前窗口的页面，浏览器会将时间间隔扩大到1000毫秒）
 
 以上代码，主线程运行的时候，setTimeout函数调用，计时器线程增加一个定时器任务。setImmediate函数调用后，其回调函数立即push到check队列。主线程执行完毕。
 
@@ -78,7 +78,10 @@ nextTick 1
 nextTick 2
 promise 1
 nextTick in promise
-可见，微任务队列也分process.nextTick队列和promise.then队列，执行下一个宏任务前会先检查process.nextTick队列，如果process.nextTick队列为空会继续检查promise.then队列，直到索引微任务队列为空才会执行下一个宏任务。
+可见，微任务队列也分process.nextTick队列和promise.then队列，执行下一个宏任务前会先检查process.nextTick队列，如果process.nextTick队列为空会继续检查promise.then队列，直到所有微任务队列为空才会执行下一个宏任务。
 
 
 3.由于node的事件驱动机制，因此node天生适合做I/O密集型的服务，对于cup密集型的服务，node v10.5.0以后有了工作线程可以使用。
+
+五种IO模型
+阻塞IO模型、非阻塞IO模型、IO复用模型、信号驱动的IO模型和异步IO模型

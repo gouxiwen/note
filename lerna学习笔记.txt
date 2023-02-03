@@ -1,7 +1,7 @@
 lerna可以用来管理多项目间互相依赖，复用公共模块
 
 全局或者局部安装lerna
-执行learn init初始化一个learn工程
+执行lerna init初始化一个learn工程
 生成的lerna.json文件，lerna默认使用npm安装包，可以修改这个文件进行改变，yarn在1.0版本之后提供了workspaces的功能，该功能从更底层的地方提供了依赖提升，做的事情跟lerna如出一辙。把它跟lerna放在一起看，简直就像是为lerna量身定做一样。因此，推荐在lerna中搭配yarn一起使用。
 lerna.json中
  "useWorkspaces": true,

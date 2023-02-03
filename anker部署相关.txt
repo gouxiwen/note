@@ -161,7 +161,7 @@ function function_name()
 }
 传参：
 function_name params1 params2
-就收参数：
+接收参数：
 function function_name()
 {
 echo 'params1' $1
