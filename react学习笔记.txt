@@ -156,7 +156,7 @@ RootFiber就是根fiber对象
 3.render分三个阶段：beginWork（递），completeWork（归），commitRoot（更新真实dom）
 beginWork：生成新的 state，调用 render 创建子节点，连接当前节点与子节点；
 completeWork：依据 EffectTag 收集 Effect，构造 Effect List；
-commitRoot：根据effectList 里面的节点更新dom
+commitRoot：根据effectList 里面的节点更新dom，并且执行生命周期函数
 
 使用useState更新流程在源码中的调用栈
 const [hook.memoizedState, dispatch] = useState调用关系：
