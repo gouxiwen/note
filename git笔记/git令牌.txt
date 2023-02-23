@@ -1,0 +1,7 @@
+
+remote: Support for password authentication was removed on August 13, 2021.
+remote: Please see https://docs.github.com/en/get-started/getting-started-with-git/about-remote-repositories#cloning-with-https-urls for information on currently recommended modes of authentication.
+Git https url 已经不支持密码鉴权了，改用令牌了
+
+如：
+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

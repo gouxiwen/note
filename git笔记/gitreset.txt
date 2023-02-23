@@ -1,0 +1,7 @@
+gitreset命令：(重置）
+基本用法：git reset --soft/mixed/hard commitId
+	soft:只改变本地仓库（repo）到commitId提交（删除commitId之后内容），并将commitId之后提交到内容添加到暂存区（staging）和工作区（working）
+	mixed（默认参数）：改变本地仓库（repo）和暂存区（staging）到commitId提交（删除commitId之后内容），并将commitId之后提交到内容添加到工作区（working）
+	hard：改变所有内容到commitId提交（删除commitId之后内容）
+扩展用法：git reset <commitId> [--] <file> 针对某个文件做重置操作
+这种后面跟文件名到用法只能是默认参数mixed，加--是当文件名是HEAD等关键字等时候
