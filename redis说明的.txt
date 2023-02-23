@@ -1,0 +1,8 @@
+解压：tar zxvf redis-4.0.9.tar.gz
+移动到： mv redis-4.0.9 /usr/local/
+切换到：cd /usr/local/redis-4.0.9/
+编译测试 sudo make test
+编译安装 sudo make install
+默认启动服务 redis-server
+配置文件启动 redis-server /redisConf/redis.conf
+启动客户端命令行 redis-cli

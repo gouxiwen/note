@@ -1,0 +1,10 @@
+express：
+1.cookie-parser中间件用来设置和获取cookie，可以单独使用
+2.express-session中间件基于cookie-parser，可以单独使用，用来设置一个关联了session的cookie，必须设置secret
+3.cookie保存在浏览器，每次发送请求时需要带回
+4.session保存在服务器，首次登录成功后通过req.session.someInfo设置，其他请求时通过req.session.someInfo来验证身份
+5.服务器关闭，session失效，持续化需依赖数据库，如redis
+6.当express-session和cookie-parser一起使用的时候对于cookie的签名必须一致（自己验证不一致也不报错）
+koa：
+1.只需要koa-session中间件
+2.req统一用context上下文代替，如context.session.someInfo

@@ -1,0 +1,44 @@
+添加环境变量：
+1.export PATH=/usr/local/mongodb/bin:$PATH（本机再次打开bash会失效）
+2.修改全局path配置文件/private/etc/paths，增加配置/usr/local/mongodb/bin
+启动：
+1.默认启动：sudo mongod
+	1.mongodb 启动默认数据库目录即为 /data/db：
+	2.mongodb 启动默认日志目录即为 /data/log：（没有默认，不指定不启动日志）
+3.使用命令行启动：sudo mongod --dbpath=/data/db --logpath=/data/logs/mongodb.log
+4.使用配置文件来启动：sudo mongod -config /data/etc/mongodb.conf
+无账号密码连接：mongo
+5.mongodb用户名密码登录：MongoDB安装完成后，默认是没有权限验证的，默认是不需要输入用户名密码即可登录的，但是往往数据库方面我们会出于安全性的考虑而设置用户名密码，启动服务时加参数--auth或者在mongodb.conf中auth设为true。
+	1.首先在admin库中创建用户管理员（角色：userAdminAnyDatabase （这是一个账号管理员的角色）
+admin用户用于管理账号，不能进行关闭数据库等操作，目标数据库是admin）
+		> use admin
+		> db.createUser({user: "admin",pwd: "123456",roles: [ { role:"userAdminAnyDatabase", db: "admin" } ]})
+	2.在admin创建root（角色：root，root角色用于关闭数据库 db.shutdownServer()，目标数据库是admin）
+		> db.createUser({user: "root",pwd: "123456",roles: [ { role: "root", db: "admin" } ]})
+	3.创建用户自己的数据库的角色(角色：dbOwner,目标数据库是myDatabase)
+		> use myDatabase
+		> db.createUser({user: "position",pwd: "123456",roles: [ { role: "dbOwner", db: "myDatabase" } ]})
+	Role说明参考https://blog.csdn.net/m0_37867491/article/details/87883947
+使用账号密码连接：mongo --host 10.10.18.11 -u "myUserAdmin" --authenticationDatabase "admin" -p'abc123'
+6.查看当前数据库用户 show users
+
+mongoose集合命名规则：
+mongoose.model(name, [schema], [colleciton], [skipInit] )
+参数：	name ：标识model的字符串 
+
+　　    schema: 即前面定义的Schema对象
+
+　　　  collection：要连接的集合名称（如果在Schema对象中没有指定一个集合,如果为空则从模型名称推断）
+
+　　　  skipInit： 默认为false，如果为true，则跳过初始化过程，创建一个没有连接到数据库的一个简单的Model对象。
+
+在MongoDB中，如果向一个不存在的集合中插入文档，则对应的数据库（默认为test）会创建一个集合，二Mongoose同样遵循这个原则，并且在新创建的数据库的命名上面也颇有讲究，判断模型名是否可数，如果不可数直接返回模型名作为新集合的名称；如果可数，则返回模型名的复数形式作为新集合的名称（模型名+'s') ;
+Mongoose exec 和 then两者返回的都是 promise对象
+exec一般用于独立的动作一次性执行，
+then则用于连续性的动作exec和then的参数是有所不同的，前者是 callback(err,doc)，后者则是 resolved(doc),rejected(err)
+Mongoose多表关联查询关键字populate，多级关联需要深度关联
+populate({
+    path: 'friends',
+    // Get friends of friends - populate the 'friends' array for every friend
+    populate: { path: 'friends' }
+});

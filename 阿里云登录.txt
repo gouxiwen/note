@@ -1,0 +1,50 @@
+云服务器登录：
+null
+阿里云
+阿里云账号，gouxiwen，gouxiwen89....
+阿里云服务器
+服务器为centos系统：
+公网IP地址：8.135.2.106
+用户名：root
+密码:GOUxiwen890917!
+配置访问规则：
+自定义的服务端口需要在控制台配置访问规则
+远程连接：
+服务器为Linux使用ssh命令，如果是windows系统一般用远程桌面。
+首次连接需要使用vnc连接，第一次会生成连接密码：94NQ0x
+进入以后修改配置文件/etc/ash/sshd_config，允许ssh登录，改PermitRootLogin no为yes，重启ssh服务即可用ssh连接。
+安装MySQL，按照收藏的教程，安装完成后会生成一个初始密码，需要修改为自己的
+修改为：gouxiwen890917
+用户名为：root
+需要远程访问mysql的话还需要配访问规则
+ssh root@8.135.2.106
+密码：GOUxiwen890917!
+安装包存放目录：
+/usr/local/tools，下载的软件都进到这里下载统一管理
+安装mysql yum安装 参考https://blog.csdn.net/huaicainiao/article/details/79185037
+mysql
+启动服务：
+service mysql start
+登录：
+mysql -uroot -pgouxiwen890917
+安装nginx yum安装 参考https://www.cnblogs.com/hans_gis/p/12301820.html
+
+nginx
+启动服务：
+start nginx
+停止服务
+nginx -s stop
+重启服务
+service nginx restart
+重启之前检查配置是否正常
+nginx -t
+
+安装docker
+https://blog.csdn.net/weixin_43941364/article/details/106406185
+如果没有docker-compose
+curl -L https://github.com/docker/compose/releases/download/1.25.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+安装git
+有yum的系统执行下列命令
+$ yum install curl-devel expat-devel gettext-devel \ openssl-devel zlib-devel
+$ yum install git-core

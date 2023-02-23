@@ -1,0 +1,20 @@
+基于forge打包的模板:
+
+npm install -g electron-forge
+electron-forge init my-new-project --template=vue
+cd my-new-project
+electron-forge start
+
+
+
+基于builder或者packager打包的模板:
+simulatedgreg/electron-vue:
+
+# Install vue-cli and scaffold boilerplate
+npm install -g vue-cli
+vue init simulatedgreg/electron-vue my-project
+
+# Install dependencies and run your app
+cd my-project
+yarn # or npm install
+yarn run dev # or npm run dev

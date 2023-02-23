@@ -1,0 +1,4 @@
+打开Xcode中的iOS模拟器open -a Simulator
+查看当前模拟器：flutter emulators
+打开指定模拟器：flutter emulators --launch apple_ios_simulator
+运行flutter：flutter run 安卓机需先运行：yes | flutter doctor --android-licenses

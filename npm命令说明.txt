@@ -1,0 +1,15 @@
+查看npm默认配置 npm config ls -l
+查看npm全局安装路径 npm root -g
+
+对npm命令的理解：
+1.全局命令安装过程（以本机spy-debugger为例）
+本机全局安装路径/usr/local/lib/node_modules
+下载spy-debugger包到/usr/local/lib/node_modules->识别package.json文件中的bin属性下配置的执行命令lib/index.js->将spy-debugger包的lib/index.js文件链接到/usr/locla/bin下->/usr/locla/bin下生成一个命名为spy-debugger（package.json文件中的name属性）
+由于/usr/locla/bin下的命令是全局命令，所以执行spy-debugger就会执行spy-debugger包的lib/index.js文件
+
+2.本地安装命令（以vue-cli-service为例）
+在本地安装一个包之后，这个包的命令会被添加到项目的node_modules/.bin文件中。执行npm run 命令,package.json中的scripts会按照一定顺序寻找对应命令的位置，本地的node_modules/.bin也在寻找的清单中
+运行 npm run serve 执行vue-cli-service命令，就会先从本地的node_modules/.bin下寻找vue-cli-service文件并执行。
+在本地执行运行vue-cli-service会报找不到命令的错，这时候可以用npx run vue-cli-service
+
+参考文章：https://blog.csdn.net/weixin_34087301/article/details/91426647

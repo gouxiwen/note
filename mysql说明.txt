@@ -1,0 +1,26 @@
+安装：
+brew install mysql
+启动sql服务：
+mysql.server star（有别于yum安装的启动方式）
+初始化（非必须）：
+mysql_secure_installation 这一步可以设置root用户密码，我设为gouxiwen890917
+参考：http://blog.itpub.net/30936525/viewspace-2016528/
+如果没有在初始化设置root密码，可以手动创建，不设置则密码默认为空
+mysqladmin -u root password "new_password";
+停止sql服务：
+mysql.server stop
+连接mysql：
+mysql -uroot -pGouxiwen@890917
+退出连接
+exit
+安装可视化管理工具：https://www.cnblogs.com/mumusun/p/12597815.html
+首次会连接失败：
+原因：MySQL8.0之后更换了加密方式，而这种加密方式客户端不支持
+解决：修改密码，我改为（Gouxiwen@890917）
+在控制台先登录进去，然后执行下面命令
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';//将单引号中的password换成自己的密码
+FLUSH PRIVILEGES;//刷新一下
+参考：https://www.cnblogs.com/cstdio1/p/11601940.html
+
+
+

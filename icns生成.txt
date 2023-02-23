@@ -1,0 +1,17 @@
+1.准备一张png图片：logo.png
+2.新建文件夹tem.iconsset用来存放生成的不同尺寸的png,文件夹一定以.iconsset结尾
+3.执行命令：
+sips -z 16 16     logo.png --out tmp.iconset/icon_16x16.png
+sips -z 32 32     logo.png --out tmp.iconset/icon_16x16@2x.png
+sips -z 32 32     logo.png --out tmp.iconset/icon_32x32.png
+sips -z 64 64     logo.png --out tmp.iconset/icon_32x32@2x.png
+sips -z 128 128   logo.png --out tmp.iconset/icon_128x128.png
+sips -z 256 256   logo.png --out tmp.iconset/icon_128x128@2x.png
+sips -z 256 256   logo.png --out tmp.iconset/icon_256x256.png
+sips -z 512 512   logo.png --out tmp.iconset/icon_256x256@2x.png
+sips -z 512 512   logo.png --out tmp.iconset/icon_512x512.png
+sips -z 1024 1024   logo.png --out tmp.iconset/icon_512x512@2x.png
+生成不同尺寸的png
+4.执行命令：
+iconutil -c icns tmp.iconset -o logo.icns
+生成logo.icns图片

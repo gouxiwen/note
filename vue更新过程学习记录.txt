@@ -1,0 +1,2 @@
+在父组件里使用子组件，父组件更新会生成新的vnode，子组件对应的vnode也会重新生成，只是子组件内部的vnode需要根据自身的data和props判断要不要重新生成
+在父组件层进行diff时，如果vnode时组件，则会执行prepatch，prepatch会调用updateChildComponent，updateChildComponent里面会处理更新，props，listens和solt，子组件是否更新需要根据props和data是否变化决定

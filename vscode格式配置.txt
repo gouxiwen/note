@@ -1,0 +1,23 @@
+1. .eslintrc.js中的prettier的配置
+	prettier模块用来格式化代码
+	.prettierrc.js 文件 {
+		"printWidth": 80, //一行的字符数，如果超过会进行换行，默认为80
+  		"tabWidth": 2,
+	}
+	eslint-plugin-prettier插件用来调用prettier模块进行预格式化，再通过比较差别标记错误
+	{
+  		"plugins": ["prettier"],
+ 	 	"rules": {
+   		 "prettier/prettier": "error"",
+      			{
+        			printWidth: 1000 // 等价于.prettierrc.js中的配置
+     			}
+  		}
+	}
+	eslint-config-prettier模块解决与其他插件的配置
+	extends: [
+   	 'standard', //使用standard做代码规范（eslint默认规范）
+   	 "prettier",
+ 	 ]
+	对编辑器和编译过程均有效
+	vue-cli3中 "@vue/prettier"已经集成了"plugins": ["prettier"]配置，因此不用再次配置，只需要配置rules中就可以了
