@@ -1,0 +1,17 @@
+yes|cp cp -fr $front_path/* $build_path/_front
+强制复制，即使用管道输入yes
+
+version=`date +%y.%m.%d.%H.%M`
+日期函数及格式
+
+sleep 1
+当前线程等待1秒后再执行
+
+docker build -t ${name_space}/${name}:${version} .
+-t 
+给打包好的镜像加一个tag 镜像名:标签
+.
+dockerfile的目录
+
+docker tag ${name_space}/${name}:${version} ${name_space}/${name}:latest
+指定本版本为默认（最新）版本
