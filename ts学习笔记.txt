@@ -8,7 +8,7 @@ extends：
 形如：<T extends U>
 分两种情况：
 1.T不是联合类型，则代表的意思是T是否是U的子集
-2.T是联合类型时，则会遍历T中的类型分别进行判断是否时U的子集
+2.T是联合类型时，则会遍历T中的类型分别进行判断是否是U的子集
 eg：
 1.范型中定义类型时常用extends keyof any限制是个key，如<K extends keyof any>
 2.内置类型的定义：type Extract<T,U> = T extends U ? T:never 
