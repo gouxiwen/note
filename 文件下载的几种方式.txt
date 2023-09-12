@@ -1,0 +1,32 @@
+1. 使用form表单下载
+        cosnt tempform=document.createElement("form");
+        tempform.action=url;
+        tempform.method="post";
+        tempform.style.display="none";
+        if(target) {
+            tempform.target=target
+        }
+        if(params) {
+            for(var x in params){
+                var opt=document.createElement("input");
+                opt.name=x;
+ 	opt.value=params[x];
+                tempform.appendChild(opt)
+            }
+        }
+        document.body.appendChild(tempform);
+        tempform.submit();
+        document.body.removeChild(tempform)
+
+2. 使用ajax+a标签(ajax返回数据流）或者直接使用a标签下载
+ 	var downloadUrl = window.URL.createObjectURL(blob);
+                var link = document.createElement("a");
+                link.style.display = "none";
+                link.href = downloadUrl;
+                link.setAttribute("download", filename);
+                document.body.appendChild(link);
+                link.click();
+                window.URL.revokeObjectURL(downloadUrl)
+                document.body.removeChild(link)
+
+3. 使用window.open()

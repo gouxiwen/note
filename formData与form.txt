@@ -1,0 +1,33 @@
+1. form是用html就可以实现请求
+enctype有三种取值
+application/x-www-form-urlencoded 
+默认值，url编码参数
+参数形如：
+encodeURIComponent(a)=encodeURIComponent(1)&encodeURIComponent(b)=encodeURIComponent(2)
+
+multipart/form-data 
+多部件请求体，消息体通过 boundary 来分隔多个字段，被分隔的每个字段都有自己的小头部和小消息体，且也用空行分隔。如此，提供了额外的信息。
+消息形如：
+POST http://www.example.com HTTP/1.1
+Content-Type:multipart/form-data; boundary=----WebKitFormBoundaryyb1zYhTI38xpQxBK
+
+------WebKitFormBoundaryyb1zYhTI38xpQxBK
+Content-Disposition: form-data; name="city_id"
+
+1
+------WebKitFormBoundaryyb1zYhTI38xpQxBK
+Content-Disposition: form-data; name="company_id"
+
+2
+------WebKitFormBoundaryyb1zYhTI38xpQxBK
+Content-Disposition: form-data; name="file"; filename="chrome.png"
+Content-Type: image/png
+
+PNG ... content of chrome.png ...
+------WebKitFormBoundaryyb1zYhTI38xpQxBK--
+
+text/plan
+不编码，纯文本，空格转换为 “+” 加号，但不对特殊字符编码。很少用
+
+2. formData
+js接口，浏览器回自动添加content-Type为multipart/form-data，如果想传json需要设置content-Type为application/json
