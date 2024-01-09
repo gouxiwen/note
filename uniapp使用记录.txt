@@ -1,0 +1,7 @@
+1. uni-app 有 vue 页面、nvue 页面、uvue页面。
+vue 页面是 webview 渲染的
+app-nvue 页面是原生渲染的，其样式比 web 会限制更多，另见nvue的css
+app-uvue 页面是原生渲染的，是 web 的css子集，另见uvue的css
+2. 可以使用HBuilderX和cli两种方式进行创建项目，HBuilderX对uniapp集成了很多优化
+3.如果要适配不同屏幕尺寸响应式改变元素尺寸，可以使用rpx单位（ rpx是微信小程序中对单位的规定），rpx不支持动态横竖屏切换计算，在vue页面也可以使用rem、vh/vw
+4.即使使用其他编辑器开发，开发和发布app时还是需要启动HBuilderX进行

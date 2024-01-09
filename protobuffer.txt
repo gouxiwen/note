@@ -1,0 +1,39 @@
+protobuf用于将对象序列化成二进制，比json更快，更小
+
+使用方法：
+1. 下载并安装ProtobufJS
+npm install protobufjs
+import * as protobuf from "protobufjs";
+
+2. 首先定义消息格式
+创建.proto文件，如message.proto
+
+proto文件基本语法
+ syntax = "proto3";              // 指定版本信息，不指定会报错
+ packagemypackage;                     // 文件的包名
+ // message为关键字，作用为定义一种消息类型
+ message Person{
+     string name = 1;   // 名字
+     int32  age = 2 ;   // 年龄
+ }
+
+ 3.  编译protobuf消息
+protobuf.load("message.proto", function(err, root) {
+  if (err)
+    throw err;
+  var Message = root.lookupType("mypackage.Person");
+});
+
+4. 使用protobuf消息
+// 将对象转为buf
+
+var payload = { name: "John", age: 30 };
+ // 验证消息是否合法
+var errMsg = Message.verify(payload);
+// 创建消息
+var message = Message.create(payload); // or use .fromObject if conversion is necessary
+// 序列化消息
+var buffer = Message.encode(message).finish();
+// 将buffer转为对象
+var message = Message.decode(new Uint8Array(buffer));
+ console.log(message.name, message.age);

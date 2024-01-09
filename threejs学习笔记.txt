@@ -1,0 +1,53 @@
+硬件要求：
+WebGL 对硬件的要求较高，因为它需要处理复杂的 3D 图形和渲染。以下是 WebGL 对硬件的最低要求：
+
+显卡：必须支持 WebGL 的图形 API，包括 OpenGL ES 2.0 或以上版本。最低 GTX650，推荐 GTX960 及以上，显存 2G 及以上
+检查显卡是否支持openGL，需要下载一个工具EVEREST Ultimate Edition
+硬盘：300GB 及以上
+内存：应该拥有至少 512MB 的显存和 4GB 以上的系统内存。
+处理器：应该至少是一个双核处理器，最好是一个四核处理器或更高版本。
+浏览器：应该是支持 WebGL 的现代浏览器，例如谷歌 Chrome、Mozilla Firefox、Safari 和微软 Edge。
+
+需要注意的是，对于较高级的 WebGL 应用程序，需要更高的系统要求。此外，如果您使用的是低端硬件或浏览器，可能会导致 WebGL 性能下降或无法正常运行。
+
+1. 对坐标系的理解
+uv坐标系，贴图的坐标系，从左下角开始u横向，v纵向
+屏幕坐标系，从左上角开始
+标准设备坐标，右手法则，范围【-1，1】
+世界（场景）坐标，scene的坐标，单位是米
+局部（模型）坐标，某个mesh自身的坐标，如果它有children mesh，单位是米
+在threejs中设置的position就是设置世界坐标或者局部坐标
+
+如果从一个局部坐标转为屏幕坐标，分一下三步：
+1）模型坐标转场景坐标
+模型坐标是以模型为原点绘制xyz轴的坐标点，先将模型坐标点通过与模型的matrix相乘就能得到场景中的坐标
+
+// 假设point是模型中的vector3坐标点
+const point = new THREE.Vector3(10, 10, 10)
+// point2为转换出的场景中的坐标，mesh为此模型的实体
+const point2 = point.clone().applyMatrix4(mesh.matrix)
+ 2）场景坐标转设备坐标
+场景坐标是以vector3(0,0,0)为原点的坐标点，通过vector3的project(camera)投射的相机中，返回在camera相机对象矩阵变化下对应的标准设备坐标，标准设备坐标的xyz范围是[-1, 1]
+
+// point3是设备坐标
+const point3 = point2.clone().project(scene.camera)
+
+3）设备坐标转屏幕坐标
+这里先写转换公式，后面会展示推导过程
+
+// point4就是转换的屏幕坐标
+const halfWidth = scene.dom.offsetWidth / 2
+const halfHeight = scene.dom.offsetHeight / 2
+const point4 = new THREE.Vector3(0, 0, 0)
+point4.x = Math.round(point3.x * halfWidth + halfWidth)
+point4.y = Math.round(point3.y * halfHeight + halfHeight)
+
+BufferGeometry和Geometry的区别
+BufferGeometry是Geometry的基类，BufferGeometry可以自定义任何集合形状。
+BufferGeometry 中的数据存储在BufferAttribute中，BufferAttribute这个类用于存储与BufferGeometry相关联的 attribute（例如顶点位置向量，面片索引，法向量，颜色值，UV坐标以及任何自定义 attribute ）
+BufferAttribute的构造函数如下，其接收三个参数：
+BufferAttribute( array : TypedArray, itemSize : Integer, normalized : Boolean )
+ 	array – 必须是 TypedArray. 类型，用于实例化缓存。
+ 		该队列应该包含：itemSize * numVertices个元素，numVertices 是 BufferGeometry中的顶点数目；
+ 	itemSize – 队列中与顶点相关的数据值的大小。比如，如果 attribute 存储的是三元组（例如顶点空间坐标、法向量或颜色值）则itemSize的值应该是3。
+ 	normalized – (可选) 指明缓存中的数据如何与GLSL代码中的数据对应。例如，如果array是 UInt16Array类型，且normalized的值是 true，则队列中的值将会从 0 - +65535 映射为 GLSL 中的 0.0f - +1.0f。若 normalized 的值为 false，则数据映射不会归一化，而会直接映射为 float 值，例如，32767 将会映射为 32767.0f.

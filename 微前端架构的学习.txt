@@ -9,6 +9,8 @@ css隔离：
 2.通过Shadow DOM（改方案已弃用了）
 js隔离：
 在bootstrap和mount之前分别记录全局状态快照，在unmount时恢复bootstrap之前的状态，在remount时恢复第一次mount之前的状态，确保不污染全局且多次挂在状态一致。除了全局状态之前还有全局事件也是一样的做法。
+qiankun框架为了实现js隔离，提供了三种不同场景使用的沙箱，分别是 snapshotSandbox、proxySandbox、legacySandbox
+参考文章：https://juejin.cn/post/6920110573418086413
 
 它是如何通信的？
 

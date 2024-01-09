@@ -8,3 +8,6 @@
 
 卷积神经网络（简称CNN）在图像分类、图像分割、目标检测等领域获得广泛应用。
 常用的轻量化网络结构：SqueezeNet、MobileNet、ShuffleNet、Xception
+
+一篇文章让你了解大模型项目的整个研发流程
+https://zhuanlan.zhihu.com/p/654733518
