@@ -42,7 +42,7 @@ const point4 = new THREE.Vector3(0, 0, 0)
 point4.x = Math.round(point3.x * halfWidth + halfWidth)
 point4.y = Math.round(point3.y * halfHeight + halfHeight)
 
-BufferGeometry和Geometry的区别
+2. BufferGeometry和Geometry的区别
 BufferGeometry是Geometry的基类，BufferGeometry可以自定义任何集合形状。
 BufferGeometry 中的数据存储在BufferAttribute中，BufferAttribute这个类用于存储与BufferGeometry相关联的 attribute（例如顶点位置向量，面片索引，法向量，颜色值，UV坐标以及任何自定义 attribute ）
 BufferAttribute的构造函数如下，其接收三个参数：
@@ -51,3 +51,106 @@ BufferAttribute( array : TypedArray, itemSize : Integer, normalized : Boolean )
  		该队列应该包含：itemSize * numVertices个元素，numVertices 是 BufferGeometry中的顶点数目；
  	itemSize – 队列中与顶点相关的数据值的大小。比如，如果 attribute 存储的是三元组（例如顶点空间坐标、法向量或颜色值）则itemSize的值应该是3。
  	normalized – (可选) 指明缓存中的数据如何与GLSL代码中的数据对应。例如，如果array是 UInt16Array类型，且normalized的值是 true，则队列中的值将会从 0 - +65535 映射为 GLSL 中的 0.0f - +1.0f。若 normalized 的值为 false，则数据映射不会归一化，而会直接映射为 float 值，例如，32767 将会映射为 32767.0f.
+3. 动画
+动画有两种实现，骨骼和变形，通过外部导入的模型可以带两种动画，直接解析播放就可以。
+骨骼就是创建一个由骨骼构成的骨架，绑定在mesh中，然后geometry中的顶点与骨骼对应，通过骨骼带动顶点变化。
+创建关键帧动画eg:
+// 创建立方体
+  const cubeGeometry = new THREE.BoxGeometry(2, 2, 2)
+  const cubeMaterial = new THREE.MeshLambertMaterial({
+    'color': 0xff0000
+  })
+  const meshCube = new THREE.Mesh(cubeGeometry, cubeMaterial)
+  meshCube.name = 'CUBE'
+  scene.add(meshCube)
+
+  const times = [0, 10] // 时间序列
+  const values = [
+    0, 0, 0, 40, 0, 0
+  ] // 过渡的值
+
+  // 0 - 10 秒内的位置变化
+  const posKeyFramTrack = new THREE.KeyframeTrack('.position', times, values)
+
+
+  // 通过THREE.AnimationClip对象对动画进行剪辑
+  // name, 持续时间, KeyframeTrack<>
+  const trackArr = [posKeyFramTrack]
+  const clip = new THREE.AnimationClip('CUBE-ANUMATION', 10, trackArr)
+
+  // 通过THREE.AnimationMixer混合器，通过KeyframeTrack以及剪辑器AnimationClip对象，
+  // 仅仅构成动画的数据基础，实际的动画播放需要通过AnimationMixer来控制，AnimationMixer就想一个动画控制台，
+  // 它可以同时控制多个动画，以及合并它们
+  const mixer = new THREE.AnimationMixer(meshCube)
+  const action = mixer.clipAction(clip)
+
+  // 通过 action 控制动画播放
+  action.timeScale = 5 // 调整播放速度 默认1
+  // 设置动画循环
+  // 默认值有：
+  // THREE.LoopOnce - 只执行一次
+  // THREE.LoopRepeat - 重复次数为repetitions的值, 且每次循环结束时候将回到起始动作开始下一次循环。
+  // THREE.LoopPingPong - 重复次数为repetitions的值, 且像乒乓球一样在起始点与结束点之间来回循环。
+  action.setLoop(THREE.LoopPingPong).play()
+
+  // 事件
+  // 可以通过给AnimationMixer播放器添加loop和finished事件来获取动画一个循环一个动画结束时的回调
+  mixer.addEventListener( 'loop', function( e ) {
+    console.log('帧动画循环回调：', e)
+  })
+  mixer.addEventListener( 'finished', function( e ) {
+    console.log('帧动画结束回调：', e)
+  })
+
+
+  // 帧率动画
+  function renderScence () {
+    trackballControls.update(clock)
+    mixer.update(clock.getDelta())
+    requestAnimationFrame(renderScence)
+    renderer.render(scene, camera)
+  }
+  renderScence()
+以上只定义了一个简单的轨道，实际中一个动作会包含多个轨道，可以并行或者顺序播放，每个轨道定义在对应的骨骼上
+
+变形就是直接改变 geometry的attribute
+创建变形动画eg:
+const cubeGeometry = new THREE.BoxGeometry(2, 2, 2)
+  const cubeMaterial = new THREE.MeshLambertMaterial({
+    'color': 0xff0000
+  })
+  // 存储了几何体 morphTargets(变形目标) 的细节信息
+  cubeGeometry.morphAttributes.position = []
+
+  // 形变目标1：尺寸为 2,20,2 的立方体
+  const cubeGeometry1 = new THREE.BoxGeometry(2, 20, 2)
+
+  // 赋值形变目标数组
+  cubeGeometry.morphAttributes.position[0] = cubeGeometry1.attributes.position
+
+  const meshCube = new THREE.Mesh(cubeGeometry, cubeMaterial)
+  scene.add(meshCube)
+
+  // 帧率动画
+  let index = 0
+  let flag = true
+  function renderScence () {
+    if (flag) {
+      index += 0.01
+      if (index > 1) {
+        flag = false
+      }
+    }
+    if (!flag) {
+      index -= 0.01
+      if (index <= 0) {
+        flag = true
+      }
+    }
+    //（值一般在0-1范围内）的数组，指定应用了多少变形
+    meshCube.morphTargetInfluences[0] = index
+    trackballControls.update(clock)
+    requestAnimationFrame(renderScence)
+    renderer.render(scene, camera)
+  }
+  renderScence()
