@@ -128,3 +128,8 @@ declare var Promise: PromiseConstructor;
 2. 成员是基本类型且不一致，合并后就是never
 3. 成员是非基本类型且不一致，则会合并不同的类型
 
+ts编译中--isolatedModules选项的作用
+不只ts可以转为js，使用其他转译器（如 Babel）来执行也可转换js。 但是，其他转译器一次只对一个文件进行操作，这意味着它们无法应用依赖于了解完整类型系统的代码转换。 
+此限制也适用于某些构建工具使用的 TypeScript 的 API。
+这些限制可能会导致某些 TypeScript 功能出现运行时问题。 设置该标志会告诉 TypeScript 在您编写的某些代码无法通过单文件转译过程正确解释时发出警告。
+它不会更改代码的行为，也不会更改 TypeScript 检查和发出过程的行为。

@@ -1,0 +1,9 @@
+cordova是一个用html,css,js来构建app的框架，发布于2012年
+cordova有两种用法;
+1. 直接使用框架能力生成app（需要在不同平台安装对应的环境）
+根据官方指引配置好对应的文件直接开发
+2.使用cordova.js作为桥文件与原生app通信
+需要先构建一个cordova应用并安装对应的功能插件
+h5只需要引入cordova.js，运行cordova run browser生成的www目录下有cordova.js
+原生应用需要将cordova应用生成的config.xml文件和platforms/android/www、platforms/ios/www文件夹
+拷贝到原生工程下作为原生工程的一部分，并做相应的配置可以使webview打开的h5通过cordova.js调用原生功能

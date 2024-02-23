@@ -1,0 +1,10 @@
+在请求跨域资源是一些标签默认是可以跨域的，如<audio>、<img>、<link>、<script> 和 <video> 
+但是有一些限制：
+img、audio、video	当资源被放置在 <canvas> 中时，元素会标记为被污染的，也就是说canvas是读取不到数据的。
+script	对错误日志 window.onerror 的访问将会被限制。
+link	使用了不合适的 crossorigin 标头的请求可能会被丢弃。
+
+通过添加crossorigin属性可以解除限制，但需要设置对应的响应头配合。
+crossorigin有两个值，anonymous和use-credentials
+anonymous是指请求跨域资源时不发送凭证，即cookies、客户端 SSL 证书或 HTTP 认证
+use-credentials发送用户凭证
