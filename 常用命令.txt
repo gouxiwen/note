@@ -65,3 +65,7 @@ pm2 log  // 查看日志
 
 
 git push --set-upstream origin master等价于git push -u origin master。 指定一个默认主机
+
+
+windows dns刷新命令
+ipconfig /flushdns
