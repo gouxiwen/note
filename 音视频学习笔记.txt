@@ -7,10 +7,12 @@
 
 Web主流的视频直播方案有hls、rtsp、MPEG-DASH和rtmp
 hls协议是以http协议为基础的，有一个视频文件播放列表文件m3u8后缀和若干ts文件，视频编码格式是h264，音频编码格式为MP3、AAC或者AC-3，延迟比较大10s以上
+video标签是不支持M3U8文件的识别，只有Safari浏览器可以
+<source src="http://10.10.5.119/live/livestream.m3u8" type='application/x-mpegURL'>
+对于直播流，m3u8文件会在播放过程中定期更新（浏览器自动完成），
 可以使用hls.js实现，https://github.com/video-dev/hls.js
 也可以借助videojs库及它的插件videojs-contrib-hls实现
-<source src="http://10.10.5.119/live/livestream.m3u8" type='application/x-mpegURL'>
-对于直播流，m3u8文件会在播放过程中定期更新（浏览器自动完成），参考：https://blog.csdn.net/qq_39969226/article/details/105634280
+参考：https://blog.csdn.net/qq_39969226/article/details/105634280
 
 rtsp，实时流传输协议，是TCP/IP协议体系中的一个应用层协议，浏览器不支持播放，需要安装插件
 

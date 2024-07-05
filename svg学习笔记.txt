@@ -1,0 +1,63 @@
+svg可以用来绘制矢量图
+
+1. 绘制形状
+基础形状
+rect,circle等
+路径
+path
+命令      名称                                       参数
+ M        moveto  移动到                    (x y)
+ Z         closepath  关闭路径             (none)
+ L         lineto  画线到                        (x y)
+ H        horizontal lineto  水平线到     x
+ V        vertical lineto  垂直线到         y
+ A        elliptical arc椭圆弧                   (rx ry x-axis-rotation large-arc-flag sweep-flag x y)
+ C        curveto 三次贝塞尔曲线到      (x1 y1 x2 y2 x y)
+ S        smooth curveto光滑三次贝塞尔曲线到   (x2 y2 x y)
+ Q       Bézier curveto二次贝塞尔曲线到            (x1 y1 x y)
+ T        smooth Bézier curveto光滑二次贝塞尔曲线到  (x y)
+
+2. 动画
+animate：基础动画
+animateTransform：形变动画
+animateMotion：路径动画
+
+动画属性：
+attributeType: CSS/XML 规定的属性值的名称空间
+attributeName: 规定元素的哪个属性会产生动画效果
+from/to: 从哪到哪
+dur: 动画时长
+fill: 动画结束之后的状态 保持freeze结束状态/remove恢复初始状态（默认值）
+epeatCount：动画重复执行次数
+repeatDur：动画重复执行总时间
+begin：规定动画开始的时间/什么时间触发了再执行动画
+begin=“1s”：1s后开始执行动画
+begin=“click”：click触发事件执行了再执行动画
+begin=“click + 1s”：点击之后，等两秒再执行动画
+restart: 规定元素开始动画之后，是否可以被重新开始执行
+always：动画可以在任何时候被重置。这是默认值。
+whenNotActive：只有在动画没有被激活的时候才能被重置，例如在动画结束之后，才能再执行。
+never：在整个SVG执行的过程中，元素动画不能被重置。
+calcMode: 规定每一个动画片段的动画表现
+linear：默认属性值, 匀速动画
+discrete: 非连续动画, 没有动画效果瞬间完成
+paced: 规定整个动画效果始终以相同的速度进行，设置keyTimes属性无效
+spline: 配合keySplines属性来定义各个动画过渡效, 自定义动画
+keyTimes:
+划分动画时间片段, 取值0-1
+values:
+划分对应取值片段的值
+
+形变动画：
+形变动画注意点：
+1.attributeName属性的值永远是transform
+2.type属性说明做什么形变（平移、缩放、旋转）
+
+
+路径动画：
+可以让某一元素沿着某一路径运动，使用animateMotion标签
+注意点：
+path属性：指定元素按照哪一路径执行。path中的M起点是相对于矩形位置的。
+rotate=“auto”:是动画沿着路径自动旋转
+
+参考：https://blog.csdn.net/coldriversnow/article/details/130809134

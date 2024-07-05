@@ -8,6 +8,7 @@ npm pkg set scripts.prepare="husky install"
 // 创建钩子
 npx husky add .husky/pre-commit "npx lint-staged"
 执行完后会在.husky下添加一个pre-commit脚本，并加入npx lint-staged命令
+注意：add命令在^9.x以上版本已废弃，请参考官方文档解决
 
 // 配置lint-staged
 安装lint-staged npm install lint-staged --save-dev

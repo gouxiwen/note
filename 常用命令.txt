@@ -4,7 +4,7 @@ open -n /Applications/Google\ Chrome.app --args --disable-web-security --user-da
 打开谷歌跨域浏览器指定版本,并禁用跨域限制
 open -n /Applications/Google\ Chrome90.app --args --disable-web-security --user-data-dir=存放数据目录
 win
-chrome.exe --args --disable-web-security --user-data-dir=存放数据目录
+"C:\Program Files\Google\Chrome\Application\chrome.exe" --disable-web-security --user-data-dir=存放数据目录
 
 chrome.exe --args --force-fieldtrials="WebRTC-SpsPpsIdrIsH264Keyframe/Enabled/“
 这个参数的作用：
