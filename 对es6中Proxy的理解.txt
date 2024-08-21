@@ -27,9 +27,10 @@ const parent = {
   },
 };
 const handler = {
-  get(target, key, receiver) {
-    return Reflect.get(target, key, receiver);
-    // 这里相当于return target[key]
+  get(target, key, receiver) { 
+这里的targer是parent，而receiver是obj，Reflect.get(target, key, receiver)中传入的receiver就会将this指向obj
+    return Reflect.get(target, key, receiver); // log:wang.haoyu
+    // return target[key] // log:19Qingfeng
   },
 };
 const proxy = new Proxy(parent, handler);

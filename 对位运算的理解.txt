@@ -1,0 +1,28 @@
+在js中可以利用位运算做一些状态的添加、删除、判断
+如参考vue3源码中的EffectFlags
+export enum EffectFlags {
+  ACTIVE = 1 << 0,
+  RUNNING = 1 << 1,
+  TRACKING = 1 << 2,
+  NOTIFIED = 1 << 3,
+  DIRTY = 1 << 4,
+  ALLOW_RECURSE = 1 << 5,
+  PAUSED = 1 << 6,
+}
+js中整数一般都是 32 位数值,而浮点数一般都是 64 位数值，以上7中状态转成二进制后每个状态都有一个唯一的1的位置，其余位置都是0
+利用这个特点可以利用位运算符|、&、~进行添加、判断以及删除状态的运算
+
+添加
+eg：
+this.flags |= EffectFlags.PAUSED
+现在的状态中添加PAUSED态
+
+判断
+eg:
+if (this.flags & EffectFlags.PAUSED)
+判断状态是否有PAUSED态
+
+删除
+eg:
+this.flags &= ~EffectFlags.PAUSED
+从状态中删除PAUSED态

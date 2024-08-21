@@ -1,0 +1,29 @@
+vscode中可以对程序进行调试，如一个nodejs程序，也可以打开一个网页进行调试（和使用浏览器调试一样）
+调试方式
+1. 可以先打开一个文件然后点击运行和调试该文件
+2. 也可以使用launch.json预先配置调试程序
+{
+"version": "0.2.0",
+configurations:[
+{
+"type": 调试器的类型,如"node"表示Node.js调试器,"python"表示Python调试器等。
+"request": 调试请求的类型,如"launch"表示启动一个新的调试会话,"attach"表示附加到一个已经运行的进程。
+"name": 调试配置的名称,用于在VSCode的调试下拉菜单中显示。
+"program": 要调试的程序或脚本的路径。
+"args": 传递给程序的命令行参数,以数组形式表示。
+"env": 环境变量,以键值对的形式表示。
+"cwd": 程序的工作目录。
+"stopOnEntry": 是否在程序入口处暂停调试。
+"console": 控制台输出的类型,如"internalConsole"表示使用VSCode内置的调试控制台。
+}，
+{
+...
+}
+]
+}
+
+在vscode终端中有一种叫JavaScript调试终端的，也可以用来调试nodejs进程
+调试方式
+编写js程序
+打断点
+在调试终端执行 node xxx.js
