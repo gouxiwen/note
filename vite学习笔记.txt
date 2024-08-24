@@ -1,0 +1,22 @@
+对public目录的理解：
+vite文档中public有两个注意事项：
+1. 引入 public 中的资源永远应该使用根绝对路径 —— 举个例子，public/icon.png 应该在源码中被引用为 /icon.png。
+2. public 中的资源不应该被 JavaScript 文件引用
+
+第一点很好理解，第二点说法和官方示例里有点矛盾，官方示例中有这么一段：
+main.js中
+
+import viteLogo from '/vite.svg'
+
+document.querySelector('#app').innerHTML = `
+  <div>
+    <a href="https://vitejs.dev" target="_blank">
+      <img src="${viteLogo}" class="logo" alt="Vite logo" />
+    </a>
+  </div>
+`
+
+setupCounter(document.querySelector('#counter'))
+这里明明在main.js中引入了public中的资源。
+我的理解是可以这样解释：
+这里虽然引用了，但是使用在innerHTML里作为静态资源，而不是在js中作为一个对象使用。

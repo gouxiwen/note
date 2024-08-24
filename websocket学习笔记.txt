@@ -1,0 +1,28 @@
+1. 子协议
+子协议用于服务端在同一个服务下处理不同的业务场景，客户端可以发送一个字符串或者一个字符串数组
+如果客户端有子协议则请求头会有Sec-WebSocket-Protocol: appProtocol, appProtocol-v2
+此时，服务端响应头也必须返回一个支持的子协议Sec-WebSocket-Protocol: appProtocol，否则连接会报错
+有些服务需要自定义请求头，可以和服务端协商用子协议传递。
+
+ var ws = new WebSocket('wss://example.com/socket',['appProtocol', 'appProtocol-v2']);
+ ws.onopen = function () {
+   if (ws.protocol == 'appProtocol-v2') { 
+     ...
+   } else {
+     ...
+   }
+ }
+2. 接收的数据类型
+文本和二进制，其中二进制有两种，blob和arraybuffer，用实例属性binaryType设置
+从内部看，协议只关注消息的两个信息：净荷长度和类型（前者是一个可变长度字段），据以区别UTF-8 数据和二进制数据
+
+var wss = new WebSocket('wss://example.com/socket');
+ws.binaryType = "arraybuffer";  //或者 'blob'
+ // 接收数据
+ wss.onmessage = function(msg) {
+   if(msg.data instanceof ArrayBuffer) {
+     processArrayBuffer(msg.data);
+   } else {
+     processText(msg.data);
+   }
+ }

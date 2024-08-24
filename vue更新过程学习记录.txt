@@ -1,2 +1,29 @@
+1. dom挂载过程
 在父组件里使用子组件，父组件更新会生成新的vnode，子组件对应的vnode也会重新生成，只是子组件内部的vnode需要根据自身的data和props判断要不要重新生成
-在父组件层进行diff时，如果vnode时组件，则会执行prepatch，prepatch会调用updateChildComponent，updateChildComponent里面会处理更新，props，listens和solt，子组件是否更新需要根据props和data是否变化决定
+在父组件层进行diff时，如果vnode是组件，则会执行prepatch，prepatch会调用updateChildComponent，updateChildComponent里面会处理更新，props，listens和solt，子组件是否更新需要根据props和data是否变化决定
+
+h方法调用过程
+组件：
+单文件组件会被编译成一个包含render方法的对象，类似下面
+{
+name: xxx,
+render: function() {}
+}
+当creatElementVnode方法传入组件时，首先会生成组件的vnode，后续拆箱中如果vnode是组件类型则会先生成组件实例instance，然后调用render方法生成该组件的子级vnode：subTree挂在instance上，然后调用patch方法传入subTree继续拆箱。
+
+普通节点：
+直接生成自身的vnode
+
+2.依赖追踪与触发
+追踪
+对于每一个响应式对象的每一个属性，在第一次读取时都会追踪使用它的effect实例
+这里的effect实例有四种，通过new ReactiveEffect构造函数生成
+render函数
+计算属性
+观察属性
+对外暴漏的effect函数
+
+触发
+对于每一个对象的属性，在进行赋值时都会触发其对应的trigger发方法并将effect的scheduler放入队列，四种effect中只有计算属性有trigger方法，该方法的作用是基础触发依赖它本身的effect，从而重新触发get计算属性的值
+
+

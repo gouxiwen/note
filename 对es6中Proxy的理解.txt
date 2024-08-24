@@ -1,0 +1,42 @@
+1、Proxy 中接受的 Receiver 形参表示代理对象本身或者继承于代理对象的对象。
+const parent = {
+  get value() {
+    return '19Qingfeng';
+  },
+};
+const proxy = new Proxy(parent, {
+  get(target, key, receiver) {
+   console.log(receiver === proxy) // log:false
+   console.log(receiver === obj) // log:true
+    return target[key];
+  },
+});
+const obj = {
+  name: 'wang.haoyu',
+};
+// 设置obj继承于parent的代理对象proxy
+Object.setPrototypeOf(obj, proxy);
+obj.value  // 19Qingfeng
+
+2、Reflect 中传递的 Receiver 实参表示修改执行原始操作时的 this 指向。
+
+const parent = {
+  name: '19Qingfeng',
+  get value() {
+    return this.name;
+  },
+};
+const handler = {
+  get(target, key, receiver) { 
+这里的targer是parent，而receiver是obj，Reflect.get(target, key, receiver)中传入的receiver就会将this指向obj
+    return Reflect.get(target, key, receiver); // log:wang.haoyu
+    // return target[key] // log:19Qingfeng
+  },
+};
+const proxy = new Proxy(parent, handler);
+const obj = {
+  name: 'wang.haoyu',
+};
+// 设置obj继承与parent的代理对象proxy
+Object.setPrototypeOf(obj, proxy);
+console.log(obj.value);  //  wang.haoyu，而不是19Qingfeng

@@ -1,27 +1,34 @@
 采样率：定义了每秒从连续信号中提取并组成离散信号的采样个数，单位是Hz，是录制设备录制时用到的参数
-码率：也叫比特率，同等分辨率的视频传输码率越大越清晰，视频也越大，耗费网络越多，单位是kbps即千位每秒， 1kbps = 1024 bps。
+码率：也叫比特率，同等分辨率的视频传输码率越大越清晰，视频也越大，耗费网络越多，单位是kbps即千位每秒， 1kbps = 1000 bps，注意不是1024，1Kb以前等于1024比特，区别于字节1KB=1024B，Mb和Kb的换算还是1024。
 分辨率：视频在宽和高上大像素数，分辨率换算成码率和视频YUV格式有关，如YUV是420，对于未经压缩的视频，码率=宽x高x1.5x8 bps
 码率和采样率有正相关。
-宽带的单位是位每秒，1M宽带表示1024千位每秒，换算成字节是1024/8 = 128 KB/s
+宽带的单位是位每秒，1M宽带表示1024kb每秒，换算成字节是1024/8 = 128 KB/s
 由于宽带和码率的单位一样，所以码率*帧速率=视频每秒需要的宽带
 
-Web主流的视频直播方案有hls、rtsp、MPEG-DASH和rtpm
+‌采样位数是衡量声音波动变化的一个参数，也可以说是‌声卡的分辨率。它用来量化声音样本的幅度，即声卡数字信号的二进制位数，客观地反映了对输入信号描述的准确程度。采样位数越大，声卡的解析度就越高，录制和回放的声音就越真实。在‌计算机中，采样位数一般有‌8位和16位之分。8位意味着声音被量化为256个不同的级别，而16位则被量化为65536个不同的级别，这提供了更高的声音质量和更少的失真。因此，16位采样位数意味着声音信号被更为精细地量化，能够更好地还原原始声音的细节和动态范围
+
+Web主流的视频直播方案有hls、rtsp、MPEG-DASH和rtmp
 hls协议是以http协议为基础的，有一个视频文件播放列表文件m3u8后缀和若干ts文件，视频编码格式是h264，音频编码格式为MP3、AAC或者AC-3，延迟比较大10s以上
+video标签是不支持M3U8文件的识别，只有Safari浏览器可以
+<source src="http://10.10.5.119/live/livestream.m3u8" type='application/x-mpegURL'>
+对于直播流，m3u8文件会在播放过程中定期更新（浏览器自动完成），
 可以使用hls.js实现，https://github.com/video-dev/hls.js
 也可以借助videojs库及它的插件videojs-contrib-hls实现
-<source src="http://10.10.5.119/live/livestream.m3u8" type='application/x-mpegURL'>
-对于直播流，m3u8文件会在播放过程中定期更新（浏览器自动完成），参考：https://blog.csdn.net/qq_39969226/article/details/105634280
+参考：https://blog.csdn.net/qq_39969226/article/details/105634280
 
 rtsp，实时流传输协议，是TCP/IP协议体系中的一个应用层协议，浏览器不支持播放，需要安装插件
 
 MPEG-DASH需要先下载一个媒体演示描述 (MPD) 文件，xml格式，然后根据描述信息分段下载视频文件，实现需要借助dash.js库或者手动实现https://blog.csdn.net/haima1998/article/details/38865023
 
-rtpm是一种实时传输协议，一般传输的是 flv，f4v 格式流，延迟更低，需要在flash播放器上播放的，H5的video播放器是不能播放的。
+rtmp是一种实时传输协议，一般传输的是 flv，f4v 格式流，延迟更低，需要在flash播放器上播放的，H5的video播放器是不能播放的。
 
 可以借助videojs库或者其他flash库实现播放，V5.20.4是最后一个版本支持，V6.x.x以后的版本核心库不支持了，因为flash正在被淘汰，chrome88开始不支持flash
 <source src="rtmp://live.hkstv.hk.lxdns.com/live/hks" type="rtmp/flv">
 
-HTTP-FLV协议是rtpm协议的升级，将音视频数据封装成FLV格式，然后通过HTTP协议传输给客户端，采用http长连接，不用分片，延时低，结合了hls和rtpm的特点。http长连接的实现原理是HTTP协议中有个约定：content-length字段，http的body部分的长度服务器回复http请求的时候如果有这个字段，客户端就接收这个长度的数据然后就认为数据传输完成了，如果服务器回复http请求中没有这个字段，客户端就一直接收数据，直到服务器跟客户端的socket连接断开。
+HTTP-FLV协议是rtmp协议的升级，将音视频数据封装成FLV格式，然后通过HTTP协议传输给客户端，采用http长连接，不用分片，延时低，结合了hls和rtmp的特点。<source src="http://ossrs.net:8081/live/livestream.flv">
+实现的关键：
+1.http长连接的实现原理是HTTP协议中有个约定：content-length字段，http的body部分的长度服务器回复http请求的时候如果有这个字段，客户端就接收这个长度的数据然后就认为数据传输完成了，如果服务器回复http请求中没有这个字段，客户端就一直接收数据，直到服务器跟客户端的socket连接断开。
+2.HTTP-FLV协议使用分块传输的方式在服务器和客户端之间传输数据，在这种情况下，服务器的响应头中将提供一个标头Transfer-Encoding:chunked，服务器端将向客户端发送一个空块，以指示响应的结束。（在实际测试中，响应头中也会出现没有Transfer-Encoding:chunked，而有Connection:close的情况，用于告诉http客户端继续接收数据，直到服务器端关闭连接。）
 
 可以借助flv.js库播放flv格式的流，原理是内部转化格式fmp4格式，再通过 Media Source Extension（MSE） 喂给浏览器的 video 标签。
 

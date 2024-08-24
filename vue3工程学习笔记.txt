@@ -1,0 +1,40 @@
+vue3是一个Monorepo项目项目，使用pnpm workspace管理工程
+pnpm-workspace.yaml是其配置文件
+packages:
+  - 'packages/*'
+  - 'packages-private/*'
+
+catalog:
+  '@babel/parser': ^7.25.3
+  '@babel/types': ^7.25.2
+  'estree-walker': ^2.0.2
+  'magic-string': ^0.30.11
+  'source-map-js': ^1.2.0
+  'vite': ^5.4.0
+  '@vitejs/plugin-vue': ^5.1.2
+
+packages定义子包目录
+catalog定义某些依赖的版本号
+
+子包引用默认是引用子包根目录下的index.ts文件
+如：vue子包中
+package.json中配置
+"dependencies": {
+    "@vue/shared": "workspace:*",
+    "@vue/compiler-dom": "workspace:*",
+    "@vue/runtime-dom": "workspace:*",
+    "@vue/compiler-sfc": "workspace:*",
+    "@vue/server-renderer": "workspace:*"
+  },
+页面导入
+import { extend } from '@vue/shared' 
+应该引用的是'root/packages/share/index.ts'中的内容
+但是如果设置了ts.config中的compilerOptions.path则会改变默认行为，如：
+"paths": {
+      "@vue/compat": ["packages/vue-compat/src"],
+      "@vue/*": ["packages/*/src"],
+      "vue": ["packages/vue/src"]
+    },
+就会引用'root/packages/share/src/index.ts'中的内容
+
+使用esbuild打包时，ts文件转换默认也会读取ts.config文件

@@ -1,0 +1,86 @@
+1. uni-app 有 vue 页面、nvue 页面、uvue页面。
+vue 页面是 webview 渲染的
+app-nvue 页面是原生渲染的，其样式比 web 会限制更多，另见nvue的css
+app-uvue 页面是原生渲染的，是 web 的css子集，另见uvue的css
+2. 可以使用HBuilderX和cli两种方式进行创建项目，HBuilderX对uniapp集成了很多优化
+3.如果要适配不同屏幕尺寸响应式改变元素尺寸，可以使用rpx单位（ rpx是微信小程序中对单位的规定），rpx不支持动态横竖屏切换计算，在vue页面也可以使用rem、vh/vw
+4.即使使用其他编辑器开发，开发和发布app时还是需要启动HBuilderX进行
+
+html5 plus（HTML5+）
+是一种由html5+联盟提出的规范
+提供js调用app原生api的能力，在支持html5+运行时的app中通过webview打开的h5可以使用
+使用方式，需要监听plusready事件
+document.addEventListener('plusready',function () { 
+        // 在这里调用5+ API 
+},false); 
+
+uni-app App端内置 HTML5+ 引擎，让 js 可以直接调用丰富的原生能力，内部webview当然也提供HTML5+ 引擎
+uni-app不需要 plus ready，直接使用
+注意：小程序及 H5 等平台是没有 HTML5+ 扩展规范的，因此在 uni-app 调用 HTML5+ 的扩展规范时，需要注意使用条件编译。否则运行到h5、小程序等平台会出现 plus is not defined错误。
+
+webview内H5与应用（小程序，app）的通信
+1. 在H5中引入UniAppJSBridge
+下载地址：https://gitcode.net/dcloud/hello-uni-app-x/-/blob/alpha/hybrid/html/uni.webview.1.5.5.js
+示例：
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    ...
+  </head>
+  <body>
+    <noscript>
+      <strong>Please enable JavaScript to continue.</strong>
+    </noscript>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+ <!-- 微信 JS-SDK 如果不需要兼容小程序，则无需引用此 JS 文件。 -->  
+  <script type="text/javascript" src="//res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>  
+  <!-- uni 的 SDK -->
+  <!-- 需要把 uni.webview.1.5.5.js 下载到自己的服务器 -->
+  <script type="text/javascript" src="https://gitcode.net/dcloud/hello-uni-app-x/-/blob/alpha/hybrid/html/uni.webview.1.5.5.js"></script>
+  <script>
+    document.addEventListener('UniAppJSBridgeReady', function() {
+      uni.webView.getEnv(function(res) {
+        console.log('当前环境：' + JSON.stringify(res));
+      });
+      // uni.webView.navigateTo(...)
+    });
+  </script>
+</html>
+2. H5
+向应用发送消息，非实时消息(后退、组件销毁、分享)时
+uni.postMessage({
+            data: {
+              action: 'message'
+            }
+          });
+3. 应用
+接收消息
+<web-view ref="webview" class="webview" @message="handlePostMessage"></web-view>
+
+handlePostMessage: function(data) {
+	console.log("接收到消息：" + JSON.stringify(data.detail));
+},
+
+
+使用hbulidx和vue-cli创建工程的区别
+hbulidx创建的工程没有node_modules，所有的工程类工具集成到编辑器的插件下，main.js兼容了vue2和vue3的创建，可以用mainfest.json->vueVersion切换版本
+vue-cli创建的工程和普通vue工程一样，工程类工具安装到node_modules下，使用命令行启动项目
+两种方式创建的工程都可以使用hbuildx自带的启动命令启动
+
+微信小程序切到后台以后大概40s后定时器会个三到五秒不等执行，五分钟之内不会休眠（目前测了五分钟）
+15：06：30
+...
+15：07：09
+15：07：10
+开始出现3到11秒间隔，长连接心跳从5秒变到30s
+15：08：58
+15：09：00
+出现长间隔
+15：10：38
+15：11：06
+小程序恢复到前台
+计时器正常
+
+

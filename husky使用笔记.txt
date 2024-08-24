@@ -1,0 +1,34 @@
+husky 是一个可以管理git生命周期的工具，可以使用git的默认钩子函数，也可以自定义钩子函数
+ // 安装husky
+npm install husky --save-dev
+
+ // 初始化husky
+npm pkg set scripts.prepare="husky install"
+添加npm生命周期钩子，初始化husky，当执行完npm install后会在根目录下生产一个目录.husky
+// 创建钩子
+npx husky add .husky/pre-commit "npx lint-staged"
+执行完后会在.husky下添加一个pre-commit脚本，并加入npx lint-staged命令
+注意：add命令在^9.x以上版本已废弃，请参考官方文档解决
+
+// 配置lint-staged
+安装lint-staged npm install lint-staged --save-dev
+并在package,json里配置lint-staged命令
+"lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx,vue}": [
+      "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
+    ]
+  }
+
+
+旧版本v4和当前版本的区别
+在4.x之前，安装husky过程中它会自动在.git/hooks目录下增加一系列的钩子，每个钩子里都有调用husky的程序。当git操作的时候触发git钩子就会自动调用husky程序，然后按照package.json的配置执行程序。( husky 版本≤4.x 在package.json中增加配置)
+{
+    "husky": {
+        "hooks": {
+            "commit-msg": "commitlint -E HUSKY_GIT_PARAMS" // commit-msg是git hook
+        }
+    },
+}
+在4.x之后，有所变化，安装过程不会在.git/hooks目录下创建钩子，而是会修改.git/config 文件：增加hooksPath字段。然后按照需求手动来增加hook，比如执行npx husky add .husky/pre-commit "npm test"会增加一个钩子，同时在项目根目录自动创建的.husky/pre-commit文件。
+
+新版本的优点是不需要在package.json配置，毕竟package.json是不能写注释的，可读性要差许多，代码灵活性也差许多。

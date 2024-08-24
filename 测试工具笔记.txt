@@ -1,0 +1,43 @@
+jest、mocha、chai、vitest、cypress、puppeteer、jsdom之间的关系
+
+jest、mocha、vitest都是单元测试框架，可以直接驱动测试
+jest，没有内置断言库，需要搭配chai使用
+describe(name, () => {
+	test(name, () => {
+	// 断言
+	expect(xx).to.be.a('xx')
+	})
+})
+mocha，内置expect.js断言库
+describe(name, () => {
+	it(name, () => {
+	// 断言
+	expect(xx).toBe('xx')
+	})
+})
+vitest，内置chai断言库，同时兼容jest语法
+describe(name, () => {
+	it(name, () => {
+	// 断言
+	expect(xx).toBe('xx')
+	})
+	test(name, () => {
+	// 断言
+	expect(xx).toBe('xx')
+	})
+})
+
+chai是断言库，经常和jest搭配使用,有三种方式的断言：
+should
+如：xx.should.be.a('xx')
+expect
+如：expect(xx).to.be.a('xx')
+assert
+如：assert.equal(foo, 'bar');
+具体参考官方文档：https://www.chaijs.com
+mocha内置断言库expect.js，语法和chai稍微有点不一样
+如：expect(xx).toBe('xx')
+
+cypress是用来进行端对端测试的工具，可以模拟浏览器进行操作，有自己独立的UI页面，可以独立运行
+puppeteer是一个nodejs的库，可以模拟浏览器进行操作，可以进行爬虫，也可以用来进行端对端测试，需要搭配单元测试框架使用
+jsdom是一个在单元测试环境模拟浏览器环境的库，类似的库还要happydom

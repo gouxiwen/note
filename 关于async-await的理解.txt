@@ -1,0 +1,53 @@
+先了解一个概念：协程
+协程是一种比线程更加轻量级的存在。
+协程与线程的关系就好像是线程与进程的关系，一个线程上可以存在多个协程，但是在线程上同时只能执行一个协程。
+
+比如说，当前执行的是A协程，要启动B协程，那么A协程就需要将主线程的控制权交给B协程，这就体现在A协程暂停执行，B协程恢复执行；
+同样从B协程到A协程也是如此。通常，如果从A协程启动B协程，我们就把A协程称为B协程的父协程。
+协程其实不是被操作系统内核所管理的，而完全是由程序控制的。这样带来的好处是性能得到了很大的提升，不会被线程切换那样消耗资源。
+
+对于js主线程，主任务就是父协程，异步任务就是子协程
+
+对于promise的执行其实就是浏览器在父子协程之间切换执行的过程
+
+async/await是对promise的封装，但在执行中需要注意
+
+async 函数在遇到await之前是父协程执行的，也就是说是同步执行的，await关键字调用后父协程会调用promise.then来监控promise状态的变化，之后代码都是在then的回调是在子协程里执行的，这时候父协程会继续执行剩下的代码。
+
+async function a() {
+    console.log('a');
+    console.log('a1');
+  }
+  function b() {
+    console.log('b');
+  }
+  (function c() {
+    a()
+    b()
+  })()
+// 打印 a,a1,b
+
+async function a() {
+    console.log('a');
+    // 在遇到await之前函数是同步执行的
+    await true
+    console.log('a1');
+  }
+  function b() {
+    console.log('b');
+  }
+  let promise = Promise.resolve()
+  promise.then(() => {
+    console.log('1');
+    promise.then(() => {
+      console.log('2');
+      
+    })
+    console.log('3');
+  })
+
+  ;(function c() {
+    a()
+    b()
+  })()
+打印 a,b,1,3,a1,2

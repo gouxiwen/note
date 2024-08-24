@@ -1,0 +1,25 @@
+Map解决了Object的键不能是对象的问题
+但对象的强引用会引起内存泄漏的问题
+WeakMap用来解决键是对象时内存泄漏的问题，因此WeakMap的键只能是对象
+
+const myMap = newWeakMap()
+let my = {
+    name: "ljc",
+    sex: "男"
+}
+myMap.set(my, 'info');
+console.log(myMap);
+
+WeakMap里面的数据可能被垃圾回收机制清除或者一个对应在 WeakMap 结构的对象在外部被删除时，
+上述情况所对应的WeakMap的键值对也会被自动被移除
+
+WeakMap有以下特点：
+Map 的键可以是任意类型，WeakMap 只接受对象作为键（null除外），不接受其他类型的值作为键
+Map 的键实际上是跟内存地址绑定的，只要内存地址不一样，就视为两个键；WeakMap 的键是弱引用，键所指向的对象可以被垃圾回收，此时键是无效的
+Map 可以被遍历， WeakMap 不能被遍历
+WeakMap 没有 Map 中的一些方法，比如 size、keys、values 和 forEach 等方法，因为 WeakMap 的键不是强引用，所以无法确定其大小。
+
+WeakMap 的使用场景：
+1. DOM 节点元数据，dom对象作为键
+2. 部署私有属性， 利用弱映射，将内部属性设置为实例的弱引用对象，当实例删除时，私有属性也会随之消失，因此不会内存泄漏
+3. 数据缓存，当我们需要在不修改原有对象的情况下储存某些属性等，而又不想管理这些数据时，可以使用WeakMap

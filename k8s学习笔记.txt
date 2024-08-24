@@ -1,0 +1,25 @@
+k8s用来管理集群容器
+
+master node
+用来管理k8s，包含一些组件（kube-apiserver、kube-controller-manager、kube-scheduler、etcd）
+worker node
+用来运行容器，包含一些组件（kubelet、kube-proxy、 docker engine）
+
+集群各组件之间用kube-apiserver进行通信，实现管理集群
+
+pod（容器组）
+是最小的部署单元，是一组容器的集合。每个 Pod 都由一个特殊的根容器 Pause 容器，以及一个或多个紧密相关的用户业务容器组成
+
+Service
+定义了一个服务的访问入口，通过 Label Selector 与 Pod 副本集群之间“无缝对接”，定义了一组 Pod 的访问策略，防止 Pod 失联。
+创建 Service 时，K8S会自动为它分配一个全局唯一的虚拟 IP 地址，即 Cluster IP。服务发现就是通过 Service 的 Name 和 Service 的 ClusterIP 地址做一个 DNS 域名映射来解决的。
+
+访问Service
+从任意节点访问
+虚拟 IP:服务端口
+从同一名称空间下的任意容器组中访问
+容器名称:服务端口
+从节点及节点所在网络的任意机器访问
+任意节点IP:节点端口
+
+Service定义的服务只能在VPC内部访问，如需要互联网访问需要配置Ingress，Ingress 将集群外部的 HTTP / HTTPS 请求路由到集群内部的 Service，可以针对不同的域名进行路径路由转发、负载均衡，域名可以解析到集群的任意节点IP。
