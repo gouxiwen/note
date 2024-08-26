@@ -1,0 +1,26 @@
+LangChain
+是一个利用已有大模型开发应用的python框架，它提供了一套工具、组件和接口。
+参考：https://blog.csdn.net/Julialove102123/article/details/136059901
+
+调用openAi接口有两个函数OpenAI和ChatOpenAI，两个函数支持的模型不一样
+使用前需要先安装openai模块，设置OPENAI_API_KEY，OPENAI_API_BASE
+参考：https://www.bilibili.com/read/cv34696327/
+
+Ollma
+是一个专为在本地机器上便捷部署和运行大型语言模型的框架。
+参考：https://zhuanlan.zhihu.com/p/694371747
+
+Ollma官方支持的模型可以直接使用ollama pull下载，也可以使用ollama run启动，启动后会自动下载模型文件
+如果是官方不支持的模型就需要手动下载，利用huggingface-cli从huggingface下载
+参考：https://zhuanlan.zhihu.com/p/708756072
+
+LangChain的关联组件langchain_community中集成了调用Ollma的sdk，提供了与OpenAI兼容的接口，结合起来就可以利用LangChain调用本地大模型开发应用了
+首先启动
+ollama run llama3
+第一次执行会默认下载文件，同样也可以直接下载
+
+引入sdk
+from langchain_community.llms import Ollama
+llm = Ollama(model="llama3:8b")
+
+参考：https://www.bilibili.com/read/cv35306597/?jump_opus=1
