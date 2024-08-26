@@ -22,7 +22,7 @@ Git 拥有一个凭证系统来处理这个事情。 下面有一些 Git 的选�
 
 如果你使用的是 Mac，Git 还有一种 “osxkeychain” 模式，它会将凭证缓存到你系统用户的钥匙串中。 这种方式将凭证存放在磁盘中，并且永不过期，但是是被加密的，这种加密方式与存放 HTTPS 凭证以及 Safari 的自动填写是相同的。
 
-如果你使用的是 Windows，你可以安装一个叫做 “Git Credential Manager for Windows” 的辅助工具。 这和上面说的 “osxkeychain” 十分类似，但是是使用 Windows Credential Store 来控制敏感信息。 可以在 https://github.com/Microsoft/Git-Credential-Manager-for-Windows 下载。
+如果你使用的是 Windows，你可以安装一个叫做 “Git Credential Manager for Windows” 的辅助工具（一般系统都会自带），git设置为credential.helper=manager。 这和上面说的 “osxkeychain” 十分类似，但是是使用 Windows Credential Store 来控制敏感信息。 可以在 https://github.com/Microsoft/Git-Credential-Manager-for-Windows 下载。
 
 你可以设置 Git 的配置来选择上述的一种方式
 
