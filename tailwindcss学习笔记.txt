@@ -1,0 +1,13 @@
+tailwindcss可以用最简单的方式写出css，我们只需要在html中写入符合规则的类名，框架就可以帮我们生产对应的css类，不再需要自己写大量的css样式类，结合编辑器插件的提示功能，大大地提高了开发效率和体验
+
+tailwindcss结合headlessui和heroicons形成了自己的组件库tailwindUI
+headlessui是一个只有逻辑没有样式的组件库
+heroicons是一个图标库
+react版本依赖：@headlessui/react @heroicons/react
+vue版本依赖：@headlessui/vue @heroicons/vue
+
+使用tailwindUI方法：
+打开其官网预览页面https://tailwindui.com/components/preview，找到对应UI，复制代码
+但是tailwindUI高级功能是收费的
+
+不过，受此启发，我们可以利用tailwindcss结合headlessui和heroicons创建自己的组件库
