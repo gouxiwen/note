@@ -1,0 +1,10 @@
+页面开启了Emulate a focused page
+
+Emulate a focused page‌功能主要用于确保在调试时页面保持聚焦状态，从而方便检查只有在悬停时才显示的元素，如tooltip、下拉菜单等。这些元素在页面失去焦点后会消失，导致检查变得困难。通过启用“Emulate a focused page”功能，可以在使用开发者工具（DevTools）时保持页面的聚焦状态。
+
+使用方法
+‌在 Chromium浏览器 中启用“Emulate a focused page”功能有两种方法‌：
+‌方法一‌：在“ Elements ”面板中选中触发弹出元素的项。接着打开“Styles”面板，点击“ hover ”按钮以激活悬停状态。然后，启用“Emulate a focused page”选项，这样即使与DevTools交互，页面也会保持聚焦状态‌
+
+‌方法二‌：打开命令菜单，运行“Show Rendering”命令，在DevTools底部打开“Rendering”抽屉。在抽屉中向下滚动，找到“Emulate a focused page”选项并勾选它‌
+1。

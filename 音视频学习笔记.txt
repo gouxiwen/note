@@ -31,6 +31,7 @@ HTTP-FLV协议是rtmp协议的升级，将音视频数据封装成FLV格式，�
 2.HTTP-FLV协议使用分块传输的方式在服务器和客户端之间传输数据，在这种情况下，服务器的响应头中将提供一个标头Transfer-Encoding:chunked，服务器端将向客户端发送一个空块，以指示响应的结束。（在实际测试中，响应头中也会出现没有Transfer-Encoding:chunked，而有Connection:close的情况，用于告诉http客户端继续接收数据，直到服务器端关闭连接。）
 
 可以借助flv.js库播放flv格式的流，原理是内部转化格式fmp4格式，再通过 Media Source Extension（MSE） 喂给浏览器的 video 标签。
+flv.js已经不再维护，用mpegts.js代替，使用方法参考:https://www.jb51.net/javascript/342346bt9.htm
 
 
 hls.js和dash.js的实现原理也都是通过MSE实现的
