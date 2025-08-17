@@ -1,0 +1,72 @@
+-->脚手架
+electron-vite
+使用vite打包，使用 Electron Builder 分发应用程序，支持多种预设模板，文档完善，支持中文
+
+-->打包和更新相关知识点
+1. electron-packager和electron-builder
+electron-packager 可以帮你将 app 打包成一个 .app 或者 .exe 文件。也有其他几个类似的项目，包括交互式的一步一步告诉你该怎么做。不过，你应该用 electron-builder，它以 electron-packager 为基础，添加了其他几个相关的模块，生成的是 .dmg 文件和 Windows 安装包，并且为你处理好了代码签名的问题
+
+2. 代码签名
+mac代码签名在打包时操作，不签名无法进行自动更新
+前提条件：
+1）加入 Apple Developer Program(需要缴纳年费)
+2）下载并安装 Xcode - 这需要一台运行 macOS 的计算机。
+3）生成，下载，然后安装签名证书（signing certificates）
+
+如：如果您正在使用 packager 的 API，您可以通过配置 来签名并对您的应用程序进行公证
+osxSign: {},
+  osxNotarize: {
+    appleId: 'felix@felix.fun',
+    appleIdPassword: 'my-apple-id-password'
+  }
+osxSign中可以配置一些权限，@electron/osx-sign中已经有一组默认权限，如果要修改默认配置，则编辑osxSign，否则保持为{}即可。
+osxNotarize是用来进行证书信息（appid，password，teamid（可选））的选项。
+
+windows代码签名在打后对安装程序等可分发文件进行签名
+前提条件：
+1）选择一个证书供应商，购买一个 Windows 身份验证码签名证书 (需要年度费用)，自 2023 年 6 月起，微软要求使用“扩展验证”证书（也称为“EV 代码签名证书”）对软件进行签名。过去，开发人员可以使用更简单、更便宜的证书（称为“authenticode 代码签名证书”或“基于软件的 OV 证书”）对软件进行签名。
+2）需要一个证书供应商提供给usb驱动器或者连接供应商云端进行签名
+electron生态里面的模块用于签名的配置属性名都是windowsSign
+
+2. Squirrel.Windows、msi、nsis三种windows安装包的区别
+Squirrel.Windows、MSI和NSIS都是用于Windows应用程序安装的工具，但它们有一些关键区别：
+
+Squirrel.Windows：
+专为Electron应用程序设计，用于自动更新和管理应用程序。
+支持跨版本更新，即使应用程序正在运行。
+不需要管理员权限，适合用户级别的安装。
+没有安装向导和点击“下一步”，只有一个安装时的 gif 动画，无法自定义安装目录
+
+MSI（微软安装包）：
+是微软推出的标准安装包格式，广泛用于企业应用程序。
+支持复杂的安装和卸载操作，如创建短键、注册表项等。
+需要管理员权限，适合系统级别的安装。
+
+NSIS（Nullsoft Scriptable Install System）：
+是一个高度灵活的安装工具，允许用户通过脚本自定义安装过程。
+支持创建多语言安装程序，以及创建自定义界面和安装步骤。
+也需要管理员权限，适合系统级别的安装。
+
+总的来说，选择哪种安装工具取决于你的应用程序需求和复杂度。如果你的应用程序需要自动更新和用户级别的安装，Squirrel.Windows可能是最合适的选择。如果你需要更复杂的安装功能和系统级别的安装，MSI或NSIS会更适合。
+
+3.Squirrel
+Squirrel是一个工具集合，包括Squirrel.Windows和Squirrel.Mac，分包对应windows系统和mac os系统，Linux不支持自动更新
+github地址：https://github.com/Squirrel
+Squirrel.Windows具有安装和更新功能
+Squirrel.Mac只有更新功能，可能是因为mac的安装包（dmg）相对比较简单
+electron中的auto-updater模块实际上调用的就是Squirrel的接口
+
+4.自动更新
+官方模块 auto-updater
+使用Squirrel框架
+mac os和windows流程不同
+参考：https://segmentfault.com/a/1190000007616641?utm_source=sf-similar-article
+
+第三方模块 electron-updater（推荐）
+window上读取latest.yml
+mac上读取latest-mac.yml
+参考：
+https://www.cnblogs.com/konghuanxi/p/17629100.html
+https://blog.csdn.net/m0_71071209/article/details/140353932
+
+

@@ -1,0 +1,55 @@
+jQuery → AngularJS → React/Vue/Preact → Svelte/Solid → Qwik  
+（命令式 → 组件化 → 编译时优化 → 细粒度响应式）
+
+jQuery诞生于2006年1月
+
+Angular 诞生于 2009 年
+颗粒度：组件树
+响应式：脏检测系统追踪数据状态的变化，并直接对真实 DOM 进行更新
+React 诞生于 2013 年 3 月 
+颗粒度：组件树
+响应式：遍历整颗组件树，并进行比对，有虚拟dom
+
+Vue 诞生于 2014 年 2 月，单文件组件
+颗粒度：组件
+响应式：proxy，有虚拟dom，vue3.6开始使用signal进行依赖追踪并且支持无虚拟dom模式vapor
+
+Preact 诞生于2016年
+颗粒度：组件
+响应式：signal，有虚拟dom
+
+
+Svelte诞生于2016年11月，单文件组件，语法类似Vue
+颗粒度：dom
+响应式：signal，无虚拟dom
+
+SolidJS 2018年，语法类似react
+颗粒度：dom
+响应式：signal，无虚拟dom
+
+Qwik 2023年5月，ssr框架，语法类似react，作者也是Angular作者
+颗粒度：dom
+响应式：signal，无虚拟dom
+
+
+
+全新的响应式实现思路-信号Signal
+// 原生信号实现示例
+function createSignal<T>(initialValue: T): [() => T, (v: T) => void] {
+  let value = initialValue;
+  const subscribers = new Set<() => void>();
+  
+  const get = () => {
+    // 依赖收集逻辑
+    if (currentListener) subscribers.add(currentListener);
+    return value;
+  };
+  
+  const set = (newValue: T) => {
+    value = newValue;
+    subscribers.forEach(fn => fn());
+  };
+  
+  return [get, set];
+}
+

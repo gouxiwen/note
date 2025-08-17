@@ -1,0 +1,22 @@
+渲染模式
+canvas 位图
+即时模式渲染（Immediate Mode Rendering）
+通过js API绘制形状，然后直接绘制到屏幕，后续每次改变都是全量更新
+svg 矢量图
+保留模式渲染（Retained Mode）
+svg使用的xml和网页使用的html都使用这种渲染模式
+先构建渲染树，然后绘制到屏幕，后续会维护渲染树，增量更新
+
+内存占比
+canvas
+一开始会分配设置的实际像素大小(width和height)的位图缓冲区，用于存储像素数据（RGBA 格式）,与图像上内容无关
+svg
+根据dom节点数量及其复杂度有关，复杂度具体来说包括节点的类型，属性数量，子节点，事件监听器，样式和类
+
+如何选择
+canvas
+图像复杂，频繁变化，内存充足
+svg
+图像简单，静态，需要单独处理元素
+
+参考：https://blog.csdn.net/formylovetm/article/details/126596570

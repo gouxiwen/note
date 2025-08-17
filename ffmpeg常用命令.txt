@@ -1,0 +1,20 @@
+ffmpeg一般会安装三个命令
+ffmpeg  转码与封装等
+
+ffmpeg -i input.png -vcodec qtrle movie_with_alpha.mov
+生成的视频的限速格式pix_fmt是 argb，则表示是有带透明通道的视频（未验证，需要在苹果系统上验证）
+QTRle是QuickTime视频格式中的一种RLE（Run Length Encoding，运行长度编码）压缩算法。它主要用于减少视频中的冗余数据，特别是对静态图像的压缩效果更好，只能封装为mov
+ffmpeg -i input.png -vcodec vp9 webm_with_alpha.webm
+生成的视频有Metadata:{alpha_mode:1}，则表示是有带透明通道的视频
+vp9只能封装为webm
+
+ffplay 播放
+ffplay -i xxx.webm -x 900 -y 1600
+
+ffprobe  查看视频信息
+ffprobe -i xxx.webm -show_streams -show_format
+show_streams 查看视频流信息
+show_format  查看封装信息
+
+参考：https://zhuanlan.zhihu.com/p/684158932
+

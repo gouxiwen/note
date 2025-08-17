@@ -26,4 +26,14 @@ render函数
 触发
 对于每一个对象的属性，在进行赋值时都会触发其对应的trigger发方法并将effect的scheduler放入队列，四种effect中只有计算属性有trigger方法，该方法的作用是基础触发依赖它本身的effect，从而重新触发get计算属性的值
 
+vue3响应式系统发展：
+vue3.4之前
+数据dep和副作用sub之间是直接关联的，响应效率低
+vue3.4
+重构了响应式系统，提高计算属性的重新计算效率
+vue3.5
+使用版本计数和受 Preact 信号启发的双向链表数据结构
+数据dep和副作用sub之间通过link对象关联，每一对dep和sub之间有一个独立的link对象
+vue3.6
+引入 alien-signals， alien-signals是一个基于 Vue 3.4 响应式系统重新编写的 signals 库，基于推拉的信号算法
 

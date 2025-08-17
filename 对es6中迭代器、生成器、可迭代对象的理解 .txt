@@ -1,0 +1,36 @@
+迭代器和可迭代对象是两个不同的概念，但又有一定的关联
+
+迭代器（Iterator）
+是一个对象，该对象有一个next方法，实现了迭代器协议 ，即返回具有value和done属性的对象
+Iterator = {
+	next() {
+		valule:xx,
+		done:false/true
+	}
+}
+
+可迭代对象
+可迭代对象（Iterable）是指实现了可迭代协议（Iterable Protocol）的对象。换句话说，可迭代对象是具有 Symbol.iterator 方法的对象，该方法返回一个迭代器对象
+Iterable = {
+[Symbol.iterator]() {
+	return Iterator
+}
+可迭代对象可以用 for...of 循环、展开语法、yield* 和解构语法进行迭代。
+
+生成器
+定义一个非连续执行的函数作为迭代算法，替代自定义迭代器，并且实现可迭代协议
+function* makeIterator() {
+  yield 1;
+  yield 2;
+}
+
+const it = makeIterator();
+it.next() // 实现迭代器协议，next可以传参，传给上一个yield的返回结果，由此，第一个next传参无效
+console.log(it[Symbol.iterator]() === it); // true，实现可迭代协议
+
+基于以上，可以用for...of进行迭代
+for (const itItem of it) {
+  console.log(itItem);
+}
+
+
