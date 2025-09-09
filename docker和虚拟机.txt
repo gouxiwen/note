@@ -19,3 +19,15 @@ Docker对比虚拟机的优势有一下：
 docker的劣势：
 1.资源隔离不如虚拟机，只能限制资源消耗低最大值，不能隔绝其他程序占用自己的资源
 2.安全性问题，只要用户拥有执行docker的权限，那就可以对docker的容器进行所有操作，不论容器是否是该用户创建的。
+
+windows中使用docker
+docker引擎由 Docker Desktop for Windows 提供支持
+由于docker运行在Linux环境中，所有在window中使用docker必须先安装wsl2子系统或者启用hyper-v虚拟机作为后端
+
+wsl2安装
+wsl --install
+
+Docker Desktop for Windows安装
+应用商店直接安装或者docker官网下载安装
+
+安装教程参考： https://blog.csdn.net/awei0916/article/details/148716479

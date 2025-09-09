@@ -1,0 +1,79 @@
+Dev Containers 是一种通过容器化技术创建统一开发环境的解决方案，主要用于提升团队协作效率和开发环境一致性。
+
+可以在本地启动容器也可以通过远程容器实现远程代码编辑、调试，无需本地安装服务器环境
+
+如果需要连接远程服务器，可以先使用 Remote - SSH 等插件建立连接，然后在远程服务器上配置和使用 Dev Container。
+
+核心配置文件
+.devcontainer/devcontainer.json
+
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/debian
+{
+  "name": "Debian",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  "image": "mcr.microsoft.com/devcontainers/base:bullseye",
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  // "features": {},
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [],
+  // Configure tool-specific properties.
+  // "customizations": {},
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  // "remoteUser": "root"
+  // "postAttachCommand": "sudo apt update && sudo apt install -y xclip",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "DavidAnson.vscode-markdownlint",
+        "huacnlee.autocorrect"
+      ],
+      "settings": {
+        "[markdown]": {
+          "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+        },
+        "[json]": {
+          "editor.defaultFormatter": "vscode.json-language-features"
+        },
+        "editor.renderWhitespace": "all",
+        "terminal.integrated.defaultProfile.windows": "Git Bash",
+        "markdownlint.config": {
+          "MD033": false
+        }
+      }
+    }
+  }
+}
+
+[可选] 添加 Dockerfile
+在 Dev Container 中使用 Dockerfile
+在和 .devcontainer 文件同级目录下创建 Dockerfile 文件
+使用 build 代替 image
+
+{
+  "name": "Debian",
+  // Or use a Dockerfile or Docker Compose file. More info: <https://containers.dev/guide/dockerfile>
+  // "image": "mcr.microsoft.com/devcontainers/base:bullseye",
+  "build": { 
+    "dockerfile": "Dockerfile" 
+  }
+}
+
+
+构建 Dev Container
+一般性进入目录后，VS Code 会自动检测 Dev Container 配置文件，并提示是否打开 Dev Container
+
+在 VS Code 中按 F1 键：
+
+如果 Dev Container 配置在当前目录：输入 Dev Containers: Rebuild and Reopen in Container
+如果需要打开第三方目录或 workspace：输入 Dev Containers: Open Folder in Container... 或 Dev Containers: Open Workspace in Container...
+4.4.1. 重新构建 Dev Container
+如果修改了 Dev Container 的配置，需要重新构建 Dev Container。
+
+在 VS Code 中按 F1 键，输入 Dev Containers: Rebuild and Reopen in Container
+
+[插件隔离] 除了和常规方式一样添加插件外，可以右键 Add to devcontainer.json 添加插件到配置文件中，这样构建环境的时候会自动安装插件。
+
+[设置隔离] 在 VS Code 设置中，选择 Remote [Dev Container:..] 选项卡，在此处修改的配置，将专属于当前 Dev Container，和 devcontainer.json 文件中的配置同步
+
+参考：https://blog.csdn.net/m0_49270962/article/details/148983879
