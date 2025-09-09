@@ -1,0 +1,185 @@
+
+一、Mac系统下可能存在的 Python 环境
+1、Mac系统自带的python环境（不同mac系统默认 python 版本不一样）在：
+
+Python 2.7.10： /System/Library/Frameworks/Python.framework/Versions/2.7
+其中，解释器在该目录下的 ./bin/python2.7
+
+Python 2.6.9: /System/Library/Frameworks/Python.framework/Versions/2.6  
+其中，解释器在该目录下的 ./bin/python2.6
+
+2、用户 通过Python官网 安装的Python环境在：
+
+Python官网：Python Releases for macOS
+
+Python 3.4.2： /Library/Frameworks/Python.framework/Versions/3.4
+其中，解释器在该目录下的 ./bin/python3.4
+
+Python 2.7.7： /Library/Frameworks/Python.framework/Versions/2.7  
+其中，解释器在该目录下的 ./bin/python2.7
+
+注意：当用户自己安装Python环境后，在终端输入python命令启动环境，则为当前用户安装的python版本环境。即：系统默认的python启动路径，由原来的mac系统默认的解释器变为当前用户安装的py解释器。
+
+3、 用户安装Anaconda3，当前conda的python环境在：
+
+Python 3.4.1： /Users/steven/Anaconda3
+其中，解释器在该目录下的 ./bin/python3.4。其中，Anaconda3文件夹名由用户在anaconda在安装时自定义。
+
+4、用户安装Anaconda，当前conda的python环境在：
+
+Python 2.7.8： /Users/steven/anaconda
+其中，解释器在该目录下的 ./bin/python2.7
+
+
+
+2025年增加：
+
+由于Mac系统不断升级，近些年的mac自带的python环境路径已经有所改变；同时，目前Python2已经成为历史产物，Anaconda也全面升级为Anaconda3，不再区分Anaconda3和Anaconda。
+
+但以上大致是想表达，作为python环境在Mac系统中通常分为3种类别：
+
+① Mac系统自带Python环境；
+
+② 用户通过Python官网安装的Python环境；
+
+③ 通过Anaconda安装的Python环境。
+
+此外，用户可以直接在终端运行：which python 或 where python，即可查看当前终端调用的Python到底是哪个路径下的Python环境。
+
+二、不同 python 环境的启动问题
+以上介绍了不同python环境所存放的目录，那在使用过程中，到底启动的是哪个环境呢？
+
+首先：
+
+1、Mac系统自带的python环境默认启动路径在：
+
+/usr/bin
+2、用户安装的python环境默认启动路径在：
+
+/usr/local/bin
+3、第三方的 python 环境默认启动配置在文件中（比如 anaconda 的 python 环境）。通常为：
+
+~/.bash_profile
+.bash_profile 是在bash环境下的配置文件，而我现在装的是 zsh 的 shell 环境，配置文件为.zshrc
+
+*** 重点来了：***
+
+终端输入 python 命令时：会按照 3 → 2 → 1 的顺序查找含有 python 可执行文件，并执行。
+
+该顺序同样适用于，mac 下所有的可执行命令的查找顺序！！！
+
+三、如何设定默认 python 版本环境
+通过二，我们知道Mac在存在多个Python环境时，Python环境的查找/启动顺序为：
+
+① 终端运行Python时，会先加载系统配置文件（包括~/.bash_profile）中的路径；
+
+② 然后，在同一配置文件中，可执行命令的路径是 从后向前 查找，后面路径覆盖前面路径。例如，在终端输入“python”，系统会在配置文件中的路径中从后向前查找，一直到找到为止。
+
+例如：我当前.bash_profile的内容为：
+
+# Setting PATH for Python 2.7  
+# The orginal version is saved in .bash_profile.pysave  
+PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"  
+export PATH  
+# Setting PATH for Python 3.4  
+# The orginal version is saved in .bash_profile.pysave  
+PATH="/Library/Frameworks/Python.framework/Versions/3.4/bin:${PATH}"  
+export PATH  
+# added by Steven Liu  
+export PATH="/Users/steven/Anaconda3/bin:$PATH"  
+# added by Anaconda 2.1.0 installer  
+export PATH="/Users/steven/anaconda/bin:$PATH"  
+# added by Anaconda3 2.1.0 installer  
+export PATH="/Users/steven/Anaconda3/bin:$PATH"  
+# Setting PATH for Subversion 1.9.0  
+export PATH="/opt/subversion/bin:$PATH"  
+根据该脚本，先会去找 /opt/subversion/bin 中，有没有命名为“python”的可执行文件（或快捷方式）；发现没有，则往上找，接着找 /Users/steven/Anaconda3/bin ；发现有，就为当前路径下的解释器环境，并执行。
+
+所以，想设置python的版本，直接把你想添加的路径export上去，并放在后面。实测有效！
+
+其本质是，在最后一次配置PATH时，把自己需要的路径放在了所有PATH路径的最前面。
+
+四、关于多个 python 环境的卸载问题
+有时候安装的python版本太多，尤其 python 又分2和3，难免安装的东西会乱窜，为避免这种情况，可以试着删除自己安装的某些环境。
+
+删除环境分几步：
+
+1、删除Python框架
+
+sudo rm -rf /Library/Frameworks/Python.framework/
+如果有多个版本，而只需要删除一个版本，则：
+
+sudo rm -rf /Library/Frameworks/Python.framework/Versions/x.x
+2、删除Python程序
+
+sudo rm -rf “/Applications/Python x.x”
+3、删除/usr/local/bin目录下的Python连接
+
+brew prune
+该命令的输出通常形为：Pruned 48 symbolic links and 18 directories from /usr/local
+
+4、（可选步骤）通过brew重新链接新的 python 环境
+
+注：Homebrew，是Mac OSX上的软件包管理工具
+
+brew doctor ——> 通过该命令诊断系统中当前的环境配置情况
+sudo brew link python3 ——> 链接到新的 python3环境
+其他可参考：osx - What is the safest way to removing Python framework files that are located in different place than Brew installs
+
+
+第一次安装模块时遇到证书验证问题：
+新建一个InstallCertificates.command，代码如下
+#!/bin/sh
+# 下面这行改为你Python的位置
+/Library/Frameworks/Python.framework/Versions/3.11/bin/python3.11 << "EOF"
+ 
+# install_certifi.py
+#
+# sample script to install or update a set of default Root Certificates
+# for the ssl module.  Uses the certificates provided by the certifi package:
+#       https://pypi.org/project/certifi/
+ 
+import os
+import os.path
+import ssl
+import stat
+import subprocess
+import sys
+ 
+STAT_0o775 = ( stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR
+             | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP
+             | stat.S_IROTH |                stat.S_IXOTH )
+ 
+def main():
+    openssl_dir, openssl_cafile = os.path.split(
+        ssl.get_default_verify_paths().openssl_cafile)
+ 
+    print(" -- pip install --upgrade certifi")
+    subprocess.check_call([sys.executable,
+        "-E", "-s", "-m", "pip", "install", "--upgrade", "certifi"])
+ 
+    import certifi
+ 
+    # change working directory to the default SSL directory
+    os.chdir(openssl_dir)
+    relpath_to_certifi_cafile = os.path.relpath(certifi.where())
+    print(" -- removing any existing file or link")
+    try:
+        os.remove(openssl_cafile)
+    except FileNotFoundError:
+        pass
+    print(" -- creating symlink to certifi certificate bundle")
+    os.symlink(relpath_to_certifi_cafile, openssl_cafile)
+    print(" -- setting permissions")
+    os.chmod(openssl_cafile, STAT_0o775)
+    print(" -- update complete")
+ 
+if __name__ == '__main__':
+    main()
+EOF
+
+新增命令需要添加可执行权限：chmod 755 InstallCertificates.command
+然后执行该命令进行安装
+参考：http://fuhaocheng.cn/archives/certificate%20verify%20failed%3A%20unable%20to%20get%20local%20issuer%20certificate
+
+
