@@ -59,6 +59,9 @@ Dev Containers 是一种通过容器化技术创建统一开发环境的解决�
   }
 }
 
+Dev Container 环境准备
+Windows 系统安装 Docker Desktop for Windows（需要确保 Docker Engine 可以正常运行）
+VS Code 安装 Dev Container 插件
 
 构建 Dev Container
 一般性进入目录后，VS Code 会自动检测 Dev Container 配置文件，并提示是否打开 Dev Container
@@ -77,3 +80,17 @@ Dev Containers 是一种通过容器化技术创建统一开发环境的解决�
 [设置隔离] 在 VS Code 设置中，选择 Remote [Dev Container:..] 选项卡，在此处修改的配置，将专属于当前 Dev Container，和 devcontainer.json 文件中的配置同步
 
 参考：https://blog.csdn.net/m0_49270962/article/details/148983879
+
+体验记录
+选择在容器中打开后后
+首次会根据devcontainer.json构建一个容器并运行
+默认会将当前项目下的文件挂载到容器中workspaces目录下
+容器中编辑器插件需要重新安装
+编辑器会进入一个新的窗口，并显示连接的开发容器，打开编辑器终端会连接到容器中的bash终端
+在容器编辑器中修改文件源文件会同步修改，反之一样
+
+剩下的操作就是安装所需的工具和依赖项，这些和在本机上操作一样
+可以在容器构建前和运行前执行一些脚本，如安装工具和依赖
+如：
+"postStartCommand": "./.devcontainer/post_start_command.sh", // 可以安装相关工具
+"postCreateCommand": "./.devcontainer/post_create_command.sh"// 可以安装项目依赖
