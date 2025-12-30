@@ -13,7 +13,7 @@ WebGL 对硬件的要求较高，因为它需要处理复杂的 3D 图形和渲�
 1. 对坐标系的理解
 uv坐标系，贴图的坐标系，从左下角开始u横向，v纵向
 屏幕坐标系，从左上角开始
-标准设备坐标，右手法则，范围【-1，1】
+标准设备坐标，右手法则，大拇指x，食指y，中指z，范围【-1，1】
 世界（场景）坐标，scene的坐标，单位是米
 局部（模型）坐标，某个mesh自身的坐标，如果它有children mesh，单位是米
 在threejs中设置的position就是设置世界坐标或者局部坐标
@@ -27,7 +27,7 @@ const point = new THREE.Vector3(10, 10, 10)
 // point2为转换出的场景中的坐标，mesh为此模型的实体
 const point2 = point.clone().applyMatrix4(mesh.matrix)
  2）场景坐标转设备坐标
-场景坐标是以vector3(0,0,0)为原点的坐标点，通过vector3的project(camera)投射的相机中，返回在camera相机对象矩阵变化下对应的标准设备坐标，标准设备坐标的xyz范围是[-1, 1]
+场景坐标是以vector3(0,0,0)为原点的坐标点，通过vector3的project(camera)投射到相机中，返回在camera相机对象矩阵变化下对应的标准设备坐标，标准设备坐标的xyz范围是[-1, 1]
 
 // point3是设备坐标
 const point3 = point2.clone().project(scene.camera)

@@ -1,0 +1,38 @@
+LangChain
+是一个利用已有大模型开发应用的python框架，它提供了一套工具、组件和接口。
+参考：https://blog.csdn.net/Julialove102123/article/details/136059901
+
+调用openAi接口有两个函数OpenAI和ChatOpenAI，两个函数支持的模型不一样
+使用前需要先安装openai模块，设置OPENAI_API_KEY，OPENAI_API_BASE
+参考：https://www.bilibili.com/read/cv34696327/
+
+Ollma
+是一个专为在本地机器上便捷部署和运行大型语言模型的框架。
+参考：https://zhuanlan.zhihu.com/p/694371747
+
+Ollma官方支持的模型可以直接使用ollama pull下载，也可以使用ollama run启动，启动后会自动下载模型文件
+如果是官方不支持的模型就需要手动下载，利用huggingface-cli从huggingface下载
+参考：https://zhuanlan.zhihu.com/p/708756072
+
+LangChain的关联组件langchain_community中集成了调用Ollma的sdk，提供了与OpenAI兼容的接口，结合起来就可以利用LangChain调用本地大模型开发应用了
+首先启动
+ollama run llama3
+第一次执行会默认下载文件，同样也可以直接下载
+
+引入sdk
+from langchain_community.llms import Ollama
+llm = Ollama(model="llama3:8b")
+
+参考：https://www.bilibili.com/read/cv35306597/?jump_opus=1
+
+LangGraph
+LangGraph 是专为开发者设计的框架，适用于偏好可视化方法构建语言模型管道的用户，以图（Graph）的方式编排工作流，核心原理是用 “图” 重构任务流。
+LangGraph和LangChain同宗同源，底层架构完全相同、接口完全相通。从开发者角度来说，LangGraph也是使用LangChain底层API来接入各类大模型、LangGraph也完全兼容LangChain内置的一系列工具。
+
+SGLang与vLLM是两个主流的大模型推理框架，核心差异体现在性能表现、架构设计与适用场景三个维度。vLLM凭借PagedAttention机制在高并发场景下展现吞吐量优势，而SGLang通过RadixAttention技术更适合复杂推理流程编排‌。
+
+两个框架其实都对准的是“大模型在线服务”的场景，也就是我们平时说的“多用户高并发调用+快速响应”。过去很多人直接上Hugging Face的transformers + FastAPI 写个demo就算完事，但真到实战你就知道，batching、kv-cache、流式输出这些东西一上来，那些简陋方案立马崩溃。vLLM 和 SGLang，正是为了解决这些痛点而生的。
+
+与Langchain的关系：
+SGLang与vLLM是后端引擎，与GPU的使用有关，Langchain是上层框架，专注于应用开发。
+SGLang与vLLM可以单独使用，也可以与Langchain配合使用。

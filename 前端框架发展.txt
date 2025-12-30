@@ -6,13 +6,15 @@ jQuery诞生于2006年1月
 Angular 诞生于 2009 年
 颗粒度：组件树
 响应式：脏检测系统追踪数据状态的变化，并直接对真实 DOM 进行更新
+
 React 诞生于 2013 年 3 月 
 颗粒度：组件树
 响应式：遍历整颗组件树，并进行比对，有虚拟dom
 
 Vue 诞生于 2014 年 2 月，单文件组件
 颗粒度：组件
-响应式：proxy，有虚拟dom，vue3.6开始使用signal进行依赖追踪并且支持无虚拟dom模式vapor
+响应式：proxy，有虚拟dom
+vue的响应式理念与signal模式一样，收集依赖，触发更新，只不过vue没有直接使用signal的概念，而是将其应用在框架内部，vue3.6-alpha开始使用alien-signals对响应式进行了重构，支持无虚拟dom模式vapor
 
 Preact 诞生于2016年
 颗粒度：组件

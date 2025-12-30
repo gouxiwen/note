@@ -22,5 +22,14 @@ ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password
 FLUSH PRIVILEGES;//刷新一下
 参考：https://www.cnblogs.com/cstdio1/p/11601940.html
 
+windows：
+windows安装后配置过程启动服务失败时，需要更改mysql默认登录身份设置
+参考：https://blog.csdn.net/l13501058595/article/details/125886776
+
+可视化工具
+如果使用官方的mysql workbence
+首次使用root登录需要重置root密码，先用127.0.0.1连接数据库，然后在管理里修改用户root的密码
+
+其他可视化工具jookdb（推荐）
 
 

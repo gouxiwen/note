@@ -1,0 +1,40 @@
+lowcode-engine
+https://lowcode-engine.cn/index
+功能完善，支持多种组件库
+独立工程，基于react，运行中需要访问公网资源
+
+Variant Form 3
+https://www.vform666.com/vform3/
+vue+Element Plus组件库
+根据实测及用户反馈，VForm也可以用于ant design vue项目，只是视觉效果稍有一点差别。
+可以集成到已有项目，集成流程简单
+
+VTJ.PRO
+https://vtj.pro/guide/
+Vue3 + TypeScript + Vite，集成ElementPlus
+可以集成到已有项，可以整体集成，也可以设计器和渲染器分别接入，需要需要自定义服务类，集成流程太复杂
+
+FormCreate
+https://form-create.com/v3/guide/
+配置JSON生成
+支持多种组件库
+
+VUEFORMULATE（需要依赖该公司的apiKey）
+https://vueform.com/
+VueFormulate 是一个专门为Vue.js设计的库，致力于简化和加速表单开发的过程。它提供了一系列预定义的表单元素和验证规则，这使得创建复杂的表单变得简单快捷。
+支持多种语言
+可以集成到已有项目
+
+
+GRAPESJS
+https://grapesjs.com/
+GrapesJS 是一个开源的、基于Web的编辑器，专注于使网页设计变得简单且无需编码
+支持多种语言
+可以集成到已有项目
+
+
+其他
+VVVEBJS
+拖放式页面构建器 JavaScript 库。 采用原生 JavaScript 构建，无需任何依赖项或构建工具，并基于 Bootstrap 5。
+
+

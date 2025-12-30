@@ -1,3 +1,5 @@
+入门文章：https://zhuanlan.zhihu.com/p/1422260873
+
 k8s用来管理集群容器
 
 master node
@@ -9,6 +11,12 @@ worker node
 
 pod（容器组）
 是最小的部署单元，是一组容器的集合。每个 Pod 都由一个特殊的根容器 Pause 容器，以及一个或多个紧密相关的用户业务容器组成
+
+Label和Selector
+标签是一个可以附加到资源的任意key-value对（一个标签就是一个key/value对，每个资源可以拥有多个标签）， 然后通过Selector(即标签选择器)来选择具有确切标签的资源。
+
+ReplicaSet（副本控制器）
+ReplicaSet是一种k8s资源，通过它可以保持pod始终按照期望的副本数量运行。如果某个pod因为任何原因消失，则ReplicaSet会注意到缺少了的pod,并且创建新的pod替代它。ReplicaSet是一种期望式声明方式，我们只需要告诉它我期望的副本数量，而不用告诉它怎么做。
 
 Service
 定义了一个服务的访问入口，通过 Label Selector 与 Pod 副本集群之间“无缝对接”，定义了一组 Pod 的访问策略，防止 Pod 失联。
@@ -23,3 +31,12 @@ Service
 任意节点IP:节点端口
 
 Service定义的服务只能在VPC内部访问，如需要互联网访问需要配置Ingress，Ingress 将集群外部的 HTTP / HTTPS 请求路由到集群内部的 Service，可以针对不同的域名进行路径路由转发、负载均衡，域名可以解析到集群的任意节点IP。
+
+Deployment（部署）
+Deployment用于部署应用程序，并且用声明的方式升级应用程序。其中，Deployment由ReplicaSet(1:N)组成，并且由ReplicaSet来创建和管理Pod
+升级策略：
+a, RollingUpdate, 即滚动更新（默认的升级策略），该策略会渐进的删除旧的pod,同时创建新的pod, 是应用程序在整个升级过程中都处于可用状态。（注意：在升级过程中，pod的数量可以在期望的副本数量左右浮动，该上限和下限是可以设置的）
+
+b, Recreate, 即一次性删除所有的Pod, 然后才创建新的Pod(缺点：存在服务中断的情况)
+
+需要指出的是升级完成之后，旧的ReplicaSet仍然保留（用于回滚，即升级的逆过程）
