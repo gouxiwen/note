@@ -29,8 +29,44 @@ LCP
 
 白屏结束时间 = FP事件触发时间
 首屏结束时间 = FCP事件触发时间（有些业务中希望用更关键的内容的渲染来表示首屏，这时候可以用FMP或者LCP来作为首屏的计算指标）
+很多文章中使用的方法都不太一样
+ performance.timing.interactive - performance.timing.fetchStart 
+也有一些使用的是
+ performance.timing.loadEventEnd - performance.timing.navigationStart 
+不过时间差别应该不大，都是用从dom加载完毕减去请求开始或者刷新url的时间。
 
 FP、FCP、LCP、L和DCL时间都可以通过performance API计算
+
+performance API介绍
+
+performance.now()方法
+performance.now()返回performance.navigationStart至当前的毫秒数。performance.navigationStart是下文将介绍到的可以说是浏览器访问最初的时间测量点。
+
+performance.timing
+记录一组时间，如dom加载事件，网络请求事件等的开始、结束时间，计算性能是按需取用
+
+performance.getEntries()方法
+浏览器获取网页时，会对网页中每一个对象（脚本文件、样式表、图片文件等等）发出一个 HTTP 请求。performance.getEntries() 方法以数组形式，返回一个 PerformanceEntry 列表，这些请求的时间统计信息，有多少个请求，返回数组就会有多少个成员。
+name ：资源名称，是资源的绝对路径或调用mark方法自定义的名称 
+startTime :开始时间 
+duration ：加载时间
+entryType ：资源类型，entryType 类型不同数组中的对象结构也不同！具体见下
+initiatorType ：谁发起的请求，具体见下：
+
+type				描述
+
+frame, navigation		加载页面文档时发起的
+
+mark				通过 performance.mark() 方法添加到数组中的对象
+
+paint				包含'first-paint' or 'first-contentful-paint'
+
+measure				通过performance.measure()方法添加到数组中的对象
+
+resource			所有资源加载时间，用处最多
+
+performance.getEntriesByType('paint')
+
 
 LCP也可以通过谷歌的web-vitals获取
 
@@ -38,15 +74,36 @@ LCP也可以通过谷歌的web-vitals获取
 
 首次可交互
 即DOM加载并解析完成后，界面上的元素可以交互（如输入框可以输入、按钮可以点击、超长元素可以滚动）。其时间用performance.timing.domInteractive计算。
+performance.timing.domInteractive：
+当前网页DOM结构结束解析、开始加载内嵌资源的时间，document.readyState 变成interactive，并将抛出"readyStateChange"事件（注意只是DOM树解析完成，这时候并没有开始加载网页内的资源）
+const timeToInteractive = performance.timing.domInteractive - performance.timing.fetchStart, // 首次可交互时间
 
-performance.timing.domInteractive：当前网页DOM结构结束解析、开始加载内嵌资源的时间，document.readyState 变成interactive，并将抛出"readyStateChange"事件（注意只是DOM树解析完成，这时候并没有开始加载网页内的资源）
-
-TTI（Time To Interactive）
+TTI（Time To Interactive）可交互时间
 用于标记应用已进行视觉渲染并能可靠响应用户输入的时间点。
 需满足以下条件：
 页面已经显示有用内容。
 页面上的可见元素关联的事件响应函数已经完成注册。
 事件响应函数可以在事件发生后的 50ms 内开始执行（主线程无 Long Task）
+
+计算方法描述如下：
+
+从 FCP 时间开始，向前搜索一个不小于 5s 的静默窗口期。（静默窗口期定义：窗口所对应的时间内没有 Long Task，且进行中的网络请求数不超过 2 个）
+找到静默窗口期后，从静默窗口期向后搜索到最近的一个 Long Task，Long Task 的结束时间即为 TTI。
+如果一直找到 FCP 时刻仍然没有找到 Long Task，以 FCP 时间作为 TTI。
+
+我们可以通过domContentLoadedEventEnd来粗略的进行估算：
+
+TTI：performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart
+
+与首次可交互时间的比较：
+首次可交互时间时理论上的可交互时间，如果页面内还有其他资源加载则会不准确
+
+谷歌实验室也提供了更加便捷准确的api包进行测算 tti-polyfil:
+
+import ttiPolyfill from './path/to/tti-polyfill.js';
+ttiPolyfill.getFirstConsistentlyInteractive(opts).then((tti) => {
+  // Use `tti` value in some way.
+});
 
 FID（First Input Delay）
 用于度量用户第一次与页面交互的延迟时间，是用户第一次与页面交互到浏览器真正能够开始处理事件处理程序以响应该交互的时间。
@@ -78,15 +135,61 @@ Core Web Vitals是用户体验和SEO的重要指标。
 
 关键的指标包括
 
-LCP，用来衡量页面加载性能，为了提供良好的用户体验，LCP应该在页面首次开始加载后的2.5秒内发生
-FID，衡量交互性能，为了提供良好的用户体验，页面的FID应该小于100毫秒。
-CLS，测量视觉稳定性。为了提供良好的用户体验，页面应该保持CLS小于0.1。
+FID（First Input Delay,5.1.0版本已废弃，用INP代替），衡量交互性能，为了提供良好的用户体验，页面的FID应该小于100毫秒。
+LCP（Largest Contentful Paint）：最大内容绘制时间，LCP应该在页面首次开始加载后的2.5秒内发生
+FCP（First Contentful Paint）：首次内容绘制时间
+CLS（Cumulative Layout Shift）：累计布局偏移，页面应该保持CLS小于0.1。
+INP（Interaction to Next Paint）：下次绘制前的交互延迟
+TTFB（Time to First Byte）：首字节时间
 
-import {getLCP, getFID, getCLS} from 'web-vitals';
+查看web-vitals的源码结构，可以发现其清晰的模块化设计：
 
-getCLS(console.log);
-getFID(console.log);
-getLCP(console.log);
+核心指标监控：src/onLCP.ts
+布局偏移监控：src/onCLS.ts
+交互性能监控：src/onINP.ts
+
+import {onLCP, onINP, onCLS} from 'web-vitals';
+
+onCLS(console.log);
+onINP(console.log);
+onLCP(console.log);
+
+注意，其中部分指标需要在用户与页面交互、切换标签页或页面开始卸载后才会进行报告。如果您没有立即在控制台中看到记录的值，请尝试重新加载页面（需启用保留日志功能）或切换标签页后再切换回来。
+
+在某些情况下，指标回调可能永远不会被调用：
+如果用户从未与页面进行交互，则不会报告INP。
+如果页面是在后台加载的，则不会报告CLS、FCP和LCP。
+
+在其他情况下，指标回调可能会被多次调用：
+当页面的visibilityState变为隐藏时，会报告CLS和INP。
+页面从往返缓存中恢复后，所有指标（除上述例外情况）都会再次报告
 
 
-参考：https://blog.csdn.net/doomliu/article/details/124771351
+参考：
+https://blog.csdn.net/doomliu/article/details/124771351
+https://cloud.tencent.com/developer/article/2033814
+
+总结：
+优先使用Web Vitals提供的指标分析页面
+FP、FCP、L和DCL时间都可以通过performance API计算
+如需计算其他指标如TTI根据上面提供的方法计算
+
+发送指标：
+function sendToAnalytics(metric) {
+  const body = JSON.stringify({
+    name: metric.name,
+    value: metric.value,
+    id: metric.id
+
+    // Include additional data as needed...
+  })
+
+  // 支持页面卸载时发送请求的浏览器API
+  navigator.sendBeacon('http://xxx.analytics', body)
+}
+
+可视化分析：
+1.自己开发页面
+2.发送到Google Analytics（需要自己在平台创建报告）
+
+参考：https://gitcode.com/gh_mirrors/we/web-vitals

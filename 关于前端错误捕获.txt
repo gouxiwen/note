@@ -15,3 +15,57 @@ window.addEventListener('error')功能和window.onerro类似，但返回参数�
 
 如果用trycatch捕获了且没有再次抛出，则以上两种都不能捕获
 
+关于捕获Promise错误的方案，可以使用:
+
+window.addEventListener('unhandledrejection', event => {})
+
+来进行捕获，但是此事件的兼容性不太好，目前只有webkit内核支持这个事件。
+
+总结一下：
+window.onerror捕获运行时错误
+window.addEventListener('error')捕获资源加载错误
+window.addEventListener('unhandledrejection', event => {})捕获promise.reject（未加trycatch的）的 错误
+
+还有哪些问题需要考虑？
+
+vue组件内部渲染错误-app.config.errorHandler，onErrorCaptured，Error Boundary（类似于react内置组件，vue需自己封装，利用slot+onErrorCaptured）
+异步回调里的异常-trycatch
+sourcemap还原-npm 上有一些从 sourcemaps 反编译成 JavaScript 和 CSS 源码的库，如 reverse-sourcemap。
+离线上报-localstorage保存，下次上报
+
+前端异常监控系统的落地
+https://zhuanlan.zhihu.com/p/26085642?from_voters_page=true
+
+第三方工具汇总：
+badjs
+需要自己部署，腾讯开源，太旧了
+
+TraceKit
+概述：TraceKit 是一个轻量级的 JavaScript 错误追踪库，它可以帮助你捕获和报告浏览器中的未捕获异常。它通常被集成到前端项目中，以便在客户端捕获错误。sentry也使用它来实现错误信息标准化的。
+
+特点：
+捕获并报告未捕获的异常。
+支持跨域脚本错误（如果浏览器允许）。
+可以自定义错误报告的内容和格式。
+易于集成到现有的前端项目中。
+
+限制：
+主要关注于前端错误追踪。
+可能需要额外的后端服务来接收和存储错误报告。
+缺少一些高级功能，如性能监控、崩溃报告等。
+集成参考：https://blog.csdn.net/qq_37548296/article/details/141864266
+
+sentry
+集错误上报，性能监控，用户行为分析为一体的监控系统，开源，支持官方服务也支持自行部署搭建，官方服务提供免费版，但是有数量现在
+集成参考：
+https://zhuanlan.zhihu.com/p/43489278
+https://segmentfault.com/a/1190000019304469
+
+Bugsnag
+和sentry一样支持性能和错误，开源，有免费版和付费版
+集成参考：
+https://blog.csdn.net/weixin_35750483/article/details/155173719
+
+总结
+
+选择哪个工具取决于你的具体需求、预算以及你正在使用的技术栈。如果你只需要一个简单的前端错误追踪解决方案，并且不介意自己处理错误报告的存储和检索，那么 TraceKit 可能是一个不错的选择。然而，如果你正在寻找一个更全面的错误监控和报告解决方案，包括性能监控、崩溃报告以及与其他开发工具的集成，那么 Sentry 或 Bugsnag 可能更适合你的需求。最终的选择应该基于你的具体需求和对这些工具的评估
