@@ -1,6 +1,25 @@
+字符编码
+
 \x和\u都用来表示unicod字符
 \x 后跟 2 个十六进制符号，表示一个字节的 内码
 document.write("\x41"); //A
 \u 后跟 4 个十六进制符号，表示一个 unicode 字符
 document.write("\u0041"); //A
 \x 一般表示单子节字符，\u一般表示多子节字符
+
+
+url编码
+encodeURIComponent，也叫百分号编码，对应的解码函数decodeURIComponent
+
+作用: 
+将 URI（Uniform Resource Identifier）组件中的特殊字符进行编码，使其能够在 URL 中安全地传输。它会将一些特殊字符（除A-Z a-z 0-9 - _ . ! ~ * ' ( )之外的所有字符，包括空格）转换为百分号（%）后跟随的两个十六进制数表示的形式。
+
+使用场景:
+ 当需要将数据（如参数值）包含到 URL 中时，使用 encodeURIComponent 对数据进行编码，以防止它们被解释为 URL 中的特殊字符。
+
+encodeURIComponent 与 encodeURI 的区别
+encodeURIComponent 编码的是整个 URI 组件，几乎所有非字母数字的字符都会被编码。
+encodeURI 主要用于编码整个 URI，不会编码 URI 保留的字符（如 :, /, ?, #, &, = 等），因为这些字符在 URI 中有特殊含义。
+
+多重编码：
+一次编码和双重编码的区别在于编码的字符范围以及后台系统如何处理这些编码。在 URL 中传递数据时，encodeURIComponent 会对大多数特殊字符进行编码，但有些字符在不同的上下文中可能仍然会有特殊的意义或被错误地解析。这就需要进一步编码来防止问题的发生。

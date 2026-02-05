@@ -10,8 +10,8 @@ FP肯定不会在FCP后面出现（有可能一起出现），因为渲染出内
 FCP有可能比DCL早（首次加载内容较多时，浏览器会加载一部分渲染一部分）。
 FMP（First Meaningful Paint），首次渲染有意义的内容的时间，“有意义”没有一个标准的定义，FMP的计算方法也很复杂。
 LCP（largest contentful Paint），最大内容渲染时间。
-TBT： Total Blocking Time 总阻塞时间，是页面被阻塞响应用户交互的总时间。 TBT = LCP （首次最大内容绘制）和可交互时间之间所有长时间任务的阻塞部分之和。是测量页面加载响应的重要指标。
-超过 50 毫秒的任务即为长任务。 超出 50 毫秒的时间量为阻塞部分。
+TBT（ Total Blocking Time）， 总阻塞时间，是页面被阻塞响应用户交互的总时间。 TBT = LCP （首次最大内容绘制）和TTI（可交互时间）之间所有长时间任务的阻塞部分之和。TBT是测量页面加载响应的重要指标，，与FID指标密切相关，其测量基于实验室数据测量（如Lighthouse）。
+Long Task（长任务），超过 50 毫秒的任务即为长任务， 超出 50 毫秒的时间量为阻塞部分。
 
 DCL和L
 最初，评价前端页面加载性能有两个指标：DOMContentLoaded和load事件，分别代表DOM构造完成和首屏资源加载完成。
@@ -93,14 +93,14 @@ TTI（Time To Interactive）可交互时间
 
 我们可以通过domContentLoadedEventEnd来粗略的进行估算：
 
-TTI：performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart
+TTI=performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart
 
 与首次可交互时间的比较：
-首次可交互时间时理论上的可交互时间，如果页面内还有其他资源加载则会不准确
+首次可交互时间是理论上的可交互时间，如果页面内还有其他资源加载则会不准确
 
 谷歌实验室也提供了更加便捷准确的api包进行测算 tti-polyfil:
 
-import ttiPolyfill from './path/to/tti-polyfill.js';
+import ttiPolyfill from 'tti-polyfill';
 ttiPolyfill.getFirstConsistentlyInteractive(opts).then((tti) => {
   // Use `tti` value in some way.
 });
@@ -132,15 +132,16 @@ FPS 帧速率
 6. Core Web Vitals
 Core Web Vitals是谷歌提出的，衡量用户体验的新指标，指标将被纳入谷歌搜索引擎的网页排名。
 Core Web Vitals是用户体验和SEO的重要指标。
+其底层实现使用PerformanceObserver，PerformanceObserver可以实时监控性能变化，如FID、INP、CLS指标的计算
 
 关键的指标包括
 
 FID（First Input Delay,5.1.0版本已废弃，用INP代替），衡量交互性能，为了提供良好的用户体验，页面的FID应该小于100毫秒。
 LCP（Largest Contentful Paint）：最大内容绘制时间，LCP应该在页面首次开始加载后的2.5秒内发生
-FCP（First Contentful Paint）：首次内容绘制时间
+FCP（First Contentful Paint）：首次内容绘制时间，应该控制在1.8秒内
 CLS（Cumulative Layout Shift）：累计布局偏移，页面应该保持CLS小于0.1。
-INP（Interaction to Next Paint）：下次绘制前的交互延迟
-TTFB（Time to First Byte）：首字节时间
+INP（Interaction to Next Paint）：下次绘制前的交互延迟，INP 应控制在 200 毫秒以内
+TTFB（Time to First Byte）：首字节时间，TTFB 控制在 600 毫秒以内
 
 查看web-vitals的源码结构，可以发现其清晰的模块化设计：
 
@@ -161,7 +162,7 @@ onLCP(console.log);
 如果页面是在后台加载的，则不会报告CLS、FCP和LCP。
 
 在其他情况下，指标回调可能会被多次调用：
-当页面的visibilityState变为隐藏时，会报告CLS和INP。
+当页面的visibilityState变为隐藏时，会报告CLS和INP（如果没有增量，即delta为0，只会报告一次）。
 页面从往返缓存中恢复后，所有指标（除上述例外情况）都会再次报告
 
 
@@ -188,8 +189,48 @@ function sendToAnalytics(metric) {
   navigator.sendBeacon('http://xxx.analytics', body)
 }
 
+一次发送多个报告
+不需要单独报告每个单独的 Web Vitals 指标，可以通过在单个网络请求中批量处理多个指标报告来最大限度地减少网络使用。
+
+但是，由于并非所有 Web Vitals 指标都同时可用，而且并非所有指标都报告在每个页面上，因此不能简单地推迟报告，直到所有指标都可用。
+
+所以我们应该保留所有报告的指标的队列，并在页面后台运行或卸载时发送报告
+
+const queue = new Set();
+  function addToQueue(metric) {
+    queue.add(metric);
+  }
+
+  function flushQueue() {
+    if (queue.size > 0) {
+      // 序列化数据
+      const body = JSON.stringify([...queue]);
+
+      // 发送报告
+      fetch('/analytics', {body, method: 'POST', keepalive: true});
+
+      queue.clear();
+    }
+  }
+
+getCLS(addToQueue);
+  getFID(addToQueue);
+  getLCP(addToQueue);
+
+  // 当页面被后台处理或卸载时，报告所有可用的指标。  
+  addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      flushQueue();
+    }
+  });
+
+  // Safari不能可靠地触发' visibilitychange '事件  
+  // 如果需要Safari支持，还应该在'pagehide'事件中提交报告。  
+  addEventListener('pagehide', flushQueue);
+
 可视化分析：
 1.自己开发页面
 2.发送到Google Analytics（需要自己在平台创建报告）
 
-参考：https://gitcode.com/gh_mirrors/we/web-vitals
+参考：
+https://gitcode.com/gh_mirrors/we/web-vitals

@@ -26,6 +26,9 @@ windows：
 windows安装后配置过程启动服务失败时，需要更改mysql默认登录身份设置
 参考：https://blog.csdn.net/l13501058595/article/details/125886776
 
+执行脚本
+mysql -u root -p < schema.sql
+
 可视化工具
 如果使用官方的mysql workbence
 首次使用root登录需要重置root密码，先用127.0.0.1连接数据库，然后在管理里修改用户root的密码

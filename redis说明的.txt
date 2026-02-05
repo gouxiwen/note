@@ -6,3 +6,13 @@
 默认启动服务 redis-server
 配置文件启动 redis-server /redisConf/redis.conf
 启动客户端命令行 redis-cli
+
+查看信息
+info server
+输出config_file是当前配置文件
+
+配置文件中
+dir 指定数据存储位置
+dbfilename 指定数据文件名，如：dump.rdb
+
+开发时如果redis服务密码为空，RedisClient连接服务时不要加入密码withPassword(redisConfig.getPassword().toCharArray())，否则会连接失败

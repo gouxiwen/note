@@ -11,8 +11,11 @@ vscode编辑器安装java插件说明，extension pack for java，包含六个�
 如果自定义配置需要指定配置文件，如："java.configuration.maven.globalSettings": "F:/Program Files/mavenconfig-for-vscode/settings.xml"
 
 2.maven for java
-这个插件提供了在编辑器中可视化查看和管理maven项目，该插件没有自带mvm，需要依赖项目mvn或者全局mvn，具体根据maven.executable.path和maven.executable.preferMavenWrapper确定，默认会沿着项目根目录向上找。
+这个插件提供了在编辑器中可视化查看和管理maven项目，该插件没有自带mvm，需要依赖项目Maven Wrapper，mvnw或者全局mvn，具体根据maven.executable.path和maven.executable.preferMavenWrapper确定，默认会沿着项目根目录向上找。
 如果自定义配置需要指定配置文件，如："maven.settingsFile": "F:/Program Files/mavenconfig-for-vscode/settings.xml"
+
+Maven Wrapper，mvnw
+如果命令行使用mvnw，只能在${user.home}/.m2/settings.xml（用户级别配置）进行配置
 
 
 Spring Boot
@@ -38,6 +41,11 @@ maven配置文件pom.xml，Spring Boot同样使用pom.xml进行配置
 
 <dependencyManagement>
 统一版本控制，该配置不会引入实际依赖，但会在子模块或当前模块中声明同 GAV（groupId、artifactId、version） 的 dependency 时强制使用指定版本，也就是说我们如果需要某个依赖，直接在我们的dependency中加入依赖就行，而无需指定版本。
+ <type>pom</type>
+ <scope>import</scope>
+import作用域只能在<dependencyManagement>部分的<dependency>中使用
+它只能用于type为pom的依赖
+被导入的POM中的依赖管理配置会被合并到当前POM中
 
 <parent>
 引入标准父POM，从根本上改变了传统Maven项目中版本碎片化、配置冗余严重的局面。当一个项目声明 <parent> 引用该POM时，即自动继承了一整套经过严格验证的依赖版本组合、插件配置和构建属性，极大提升了开发效率与项目稳定性。
@@ -65,4 +73,19 @@ model层：数据库的实体层，存放实体类，实现getset方法，是数
 3.springboot的流程
 
 前端发送请求，controller层接受信息，然后调用service层的接口及其接口实现类，实现类在通过mapper层操作数据库，mapper层把数据返回给service层，然后在service层进行业务处理，然后在把数据返回给controller层。
+
+执行jar包
+安装依赖
+	<build>
+		<!-- <finalName>awesome-app</finalName> -->
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+指定特定环境执行
+java -jar springboot-profiles-1.0-SNAPSHOT.jar --spring.profiles.active=test
 

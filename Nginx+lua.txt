@@ -1,0 +1,9 @@
+nginx作为网关的实践
+
+Nginx+Lua是一种高性能的Web应用解决方案，通过在Nginx中集成Lua脚本，可以实现Web应用的高并发处理能力。Lua脚本语言轻量级、高效，适合在Nginx中处理复杂的业务逻辑。
+
+安装Nginx：首先需要安装Nginx服务器，可以从官方网站下载并按照说明进行安装。
+安装Lua：Lua语言本身不需要单独安装，但需要安装OpenResty，它是一个基于Nginx的Web平台，集成了Lua解释器。可以从OpenResty官网下载并按照说明进行安装。
+配置Nginx：在Nginx配置文件中添加lua_package_path和lua_shared_dict指令，指定Lua脚本的路径和共享内存大小。
+
+参考：https://developer.baidu.com/article/details/2772069

@@ -1,0 +1,29 @@
+Kafka 4.0 默认启用KRaft 模式（Kafka Raft），完全摒弃 ZK（ZooKeeper） 依赖。
+参考：https://cloud.tencent.com/developer/article/2508468
+
+windows:
+下载
+https://www.apache.org/dyn/closer.cgi?path=/kafka/4.1.1/kafka_2.13-4.1.1.tgz
+解压
+解压后移到目标目录如F
+打开终端，进入应用目录，F:\kafka_2.13-4.1.1
+
+初始化日志目录
+.\bin\windows\kafka-storage.bat format --standalone -t kafkastore -c .\config\server.properties
+
+其中kafkastore是集群ID，也可以根据官方文档生成UUID
+
+启动服务
+.\bin\windows\kafka-server-start.bat  .\config\server.properties     
+
+常见配置
+在config/server.properties中
+
+日志地址
+log.dirs=F:\kafka_2.13-4.1.1\kafka-logs
+
+分区数
+num.partitions=1
+
+官方文档：
+https://kafka.apache.org/quickstart/

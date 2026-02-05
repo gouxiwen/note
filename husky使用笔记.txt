@@ -11,13 +11,16 @@ npx husky add .husky/pre-commit "npx lint-staged"
 注意：add命令在^9.x以上版本已废弃，请参考官方文档解决
 
 // 配置lint-staged
+lint-staged，一个仅仅过滤出Git代码暂存区文件(被committed的文件)的工具。
+
 安装lint-staged npm install lint-staged --save-dev
-并在package,json里配置lint-staged命令
+并在package,json或package.yaml里配置lint-staged
 "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx,vue}": [
       "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
     ]
   }
+执行，npx lint-staged
 
 
 旧版本v4和当前版本的区别
@@ -29,6 +32,7 @@ npx husky add .husky/pre-commit "npx lint-staged"
         }
     },
 }
-在4.x之后，有所变化，安装过程不会在.git/hooks目录下创建钩子，而是会修改.git/config 文件：增加hooksPath字段。然后按照需求手动来增加hook，比如执行npx husky add .husky/pre-commit "npm test"会增加一个钩子，同时在项目根目录自动创建的.husky/pre-commit文件。
+在4.x之后，有所变化，安装过程不会在.git/hooks目录下创建钩子，而是会修改.git/config 文件：增加hooksPath字段。然后按照需求手动来增加hook，.git/hooks目录下可查看所有钩子，比如执行npx husky add .husky/pre-commit "npm test"会配置一个pre-commit钩子，这时在项目根目录自动创建的.husky/pre-commit脚本文件，里面可以执行一些命令，如npx lint-staged。
 
 新版本的优点是不需要在package.json配置，毕竟package.json是不能写注释的，可读性要差许多，代码灵活性也差许多。
+

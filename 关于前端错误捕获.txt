@@ -66,6 +66,13 @@ Bugsnag
 集成参考：
 https://blog.csdn.net/weixin_35750483/article/details/155173719
 
+skywalking-client
+SkyWalking 是一个开源的 APM (Application Performance Management) 工具，用于监控、追踪、诊断分布式系统的性能。SkyWalking 支持多种语言和组件，包括 Java、.NET、Node.js 等。对于前端监控，SkyWalking 提供skywalking-client-js来支持前端应用。
+支持错误上报，性能监控
+集成：
+https://github.com/apache/skywalking-client-js#quick-start
+
+
 总结
 
 选择哪个工具取决于你的具体需求、预算以及你正在使用的技术栈。如果你只需要一个简单的前端错误追踪解决方案，并且不介意自己处理错误报告的存储和检索，那么 TraceKit 可能是一个不错的选择。然而，如果你正在寻找一个更全面的错误监控和报告解决方案，包括性能监控、崩溃报告以及与其他开发工具的集成，那么 Sentry 或 Bugsnag 可能更适合你的需求。最终的选择应该基于你的具体需求和对这些工具的评估

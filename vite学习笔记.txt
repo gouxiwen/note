@@ -20,3 +20,10 @@ setupCounter(document.querySelector('#counter'))
 这里明明在main.js中引入了public中的资源。
 我的理解是可以这样解释：
 这里虽然引用了，但是使用在innerHTML里作为静态资源，而不是在js中作为一个对象使用。
+
+
+vite打包配置
+target最低支持es2015语法的浏览器，Vite 只处理语法转译，且不包含任何 polyfill
+传统浏览器可以通过插件 @vitejs/plugin-legacy 来支持，它将自动生成传统版本的 chunk 及与其相对应 ES 语言特性方面的 polyfill。兼容版的 chunk 只会在不支持原生 ESM 的浏览器中进行按需加载。
+
+当时有forof和forin是eslint使用的airbnb-base规则会提示使用这种语法会引入 regenerator-runtime的polyfill，这个警告在vite默认情况下，即不引入@vitejs/plugin-legacy的情况下可以忽略，因为vite本身就不包含任何polyfill
