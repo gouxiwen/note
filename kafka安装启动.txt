@@ -14,7 +14,27 @@ https://www.apache.org/dyn/closer.cgi?path=/kafka/4.1.1/kafka_2.13-4.1.1.tgz
 其中kafkastore是集群ID，也可以根据官方文档生成UUID
 
 启动服务
-.\bin\windows\kafka-server-start.bat  .\config\server.properties     
+.\bin\windows\kafka-server-start.bat  .\config\server.properties 
+
+为了方便启动，可以将以上命令创建为一个bat脚本：
+
+@echo off
+echo Starting Kafka server...
+.\bin\windows\kafka-server-start.bat .\config\server.properties
+pause
+
+使用说明：
+
+将以上代码保存为 start-kafka.bat 文件
+确保将此文件放在Kafka的根目录下（即包含bin和config文件夹的目录）
+双击运行即可启动Kafka服务器
+这个脚本的功能：
+
+@echo off - 关闭命令回显，使输出更清晰
+echo Starting Kafka server... - 显示启动提示信息
+执行Kafka启动命令
+pause - 在程序结束时暂停，这样可以看到输出信息，窗口不会立即关闭
+
 
 常见配置
 在config/server.properties中

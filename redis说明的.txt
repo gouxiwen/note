@@ -1,3 +1,5 @@
+下载
+mac
 解压：tar zxvf redis-4.0.9.tar.gz
 移动到： mv redis-4.0.9 /usr/local/
 切换到：cd /usr/local/redis-4.0.9/
@@ -5,14 +7,27 @@
 编译安装 sudo make install
 默认启动服务 redis-server
 配置文件启动 redis-server /redisConf/redis.conf
+
+windows
+没有官方版本，需要在github下载
+https://github.com/tporadowski/redis/releases
+参考：https://blog.csdn.net/2509_94095094/article/details/155139146
+
 启动客户端命令行 redis-cli
 
 查看信息
 info server
 输出config_file是当前配置文件
 
+查看所有key
+ KEYS *
+
 配置文件中
 dir 指定数据存储位置
 dbfilename 指定数据文件名，如：dump.rdb
 
 开发时如果redis服务密码为空，RedisClient连接服务时不要加入密码withPassword(redisConfig.getPassword().toCharArray())，否则会连接失败
+
+可视化
+vscode 插件
+Redis for VS Code

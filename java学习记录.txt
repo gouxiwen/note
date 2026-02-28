@@ -53,6 +53,12 @@ import作用域只能在<dependencyManagement>部分的<dependency>中使用
 <dependencies>
 项目中实际用到的依赖，如果已经在dependencyManagement（包括父pom中的dependencyManagement）定义了版本号，就无需指定版本号，从而使用集中定义的版本
 
+<modules>
+在 Maven 的多模块项目中，<modules> 标签用于定义当前项目包含的子模块。这允许你将一个大型的项目分解为多个更小、更易于管理的模块，同时保持它们之间的关系和依赖。
+通过这种方式，你可以在父项目中统一管理依赖版本、插件配置等，而子模块可以继承这些配置，从而简化了项目的管理。同时，你可以在父项目目录下运行 Maven 命令，这些命令会自动应用到所有子模块上。
+例如，运行 mvn clean install 会在父项目及其所有子模块上执行清理和安装操作。这对于构建、测试和部署整个项目非常有用。
+
+
 java配置代替xml
 3.0以后Spring的注解已经非常完善了，因此Spring推荐大家使用完全的java配置来代替以前的xml，不过似乎 在国内并未推广盛行。然后当Spring Boot来临，人们才慢慢认识到java配置的优雅。
 有句古话说的好:拥抱变化，拥抱未来。所以我们也应该顺应时代潮流，做时尚的弄潮儿，一起来学习下java配置的玩法。
@@ -88,4 +94,112 @@ model层：数据库的实体层，存放实体类，实现getset方法，是数
 
 指定特定环境执行
 java -jar springboot-profiles-1.0-SNAPSHOT.jar --spring.profiles.active=test
+
+理解servlet开发（内嵌tomcat打war包）
+1.打包后除了生成一份war包外，war包内部还会生成一份自身的jar包，war包是程序入口main且启动tomcat服务，启动之前解压jar包内容到临时目录作为webapp资源，临时目录在build插件的classpath中配置。
+2.启动tomcat
+	1.前先确定tomcat的webapp，在war包中就是临时目录
+	2.将资源目录添加到webapp/WEB-INF/classes中，由于编译后的classes复制到war包根目录（build插件配置），war包又解压到临时目录，所以tomcat启动后Servlet就能找到我们编写的类了。
+
+这个过程和spring boot在main()方法中一行代码直接启动Tomcat的方式基本一样
+
+
+理解spring mcv的过程
+Servlet容器，如使用@WebServlet
+mvc开发，如使用@GetMapping
+Ioc容器中使用annotation配置，如使用@Component，@Autowired
+Servlet容器中使用Ioc容器，如使用@Controller
+
+1.定义web.xml配置Spring MVC提供的DispatcherServlet，这个web.xml是一个样板配置
+2.有了这个配置，Servlet容器会首先初始化Spring MVC的DispatcherServlet，在DispatcherServlet启动时，它根据配置AppConfig创建了一个类型是WebApplicationContext的IoC容器，完成所有Bean的初始化，并将容器绑到ServletContext上。
+3.因为DispatcherServlet持有IoC容器，能从IoC容器中获取所有@Controller的Bean，因此，DispatcherServlet接收到所有HTTP请求后，根据Controller方法配置的路径，就可以正确地把请求转发到指定方法，并根据返回的ModelAndView决定如何渲染页面。
+
+
+理解spring中使用AOP
+AOP即面向切面编程，就是在业务逻辑之外将某一类非业务功能如安全检查、日志、事务植入到业务功能中，AOP本质上只是一种代理模式的实现方式。
+spring中使用AOP
+maven引入org.springframework:spring-aspects:6.0.0依赖
+Appconfig加入@EnableAspectJAutoProxy表示启用切面
+编写切面
+@Aspect
+@Component
+public class LoggingAspect {
+    // 在执行UserService的每个方法前执行:
+    @Before("execution(public * com.itranswarp.learnjava.service.UserService.*(..))")
+    public void doAccessCheck() {
+        System.err.println("[Before] do access check...");
+    }
+"execution(public * com.itranswarp.learnjava.service.UserService.*(..))"这种匹配方式范围太大且不可控，所以最好使用注解装配AOP，如：
+如果我们自己写的Bean希望在一个数据库事务中被调用，就标注上@Transactional
+@Component
+public class UserService {
+    // 有事务:
+    @Transactional
+    public User createUser(String name) {
+        ...
+    }
+
+或class级别
+@Component
+@Transactional
+public class UserService {
+    ...
+}
+
+其实现原理就是在匹配时精准匹配该注解：
+@Aspect
+@Component
+public class TransactionalAspect {
+    @Around("@annotation(Transactional)")
+
+spring中的事务传播
+如果在一个声明了事务的方法中调用另一个同样声明了事务的方法，这样就涉及到事务传播，事务传播有多种级别，默认是REQUIRED，它的意思是，如果当前没有事务，就创建一个新事务，如果当前有事务，就加入到当前事务中执行，它能满足大部分需求。
+事务传播的原理是spring把JDBC相关的Connection和TransactionStatus实例绑定到ThreadLocal。如果一个事务方法从ThreadLocal未取到事务，那么它会打开一个新的JDBC连接，同时开启一个新的事务，否则，它就直接使用从ThreadLocal获取的JDBC连接以及TransactionStatus。
+可见事务能够正确传播的前提是方法调用在同一个线程。
+如果要实现跨线程传播，就需要把Connection和TransactionStatus传递到新线程，实现起来非常复杂。
+
+全自动orm和半自动orm
+全自动orm,如Hibernate和JPA
+对比Spring提供的JdbcTemplate，它和全自动ORM框架相比，主要有几点差别：
+
+1.查询后需要手动提供Mapper实例以便把ResultSet的每一行变为Java对象；
+2.增删改操作所需的参数列表，需要手动传入，即把User实例变为[user.id, user.name, user.email]这样的列表，比较麻烦。
+ 全自动ORM虽然自动实现了对象映射和对象传递，但它也有一些问题：
+1.ORM框架总是引入了Attached/Detached状态，表示当前此Java Bean到底是在Session的范围内，还是脱离了Session变成了一个“游离”对象。很多初学者无法正确理解状态变化和事务边界，就会造成大量的PersistentObjectException异常。这种隐式状态使得普通Java Bean的生命周期变得复杂
+2.Hibernate和JPA为了实现兼容多种数据库，它使用HQL或JPQL查询，经过一道转换，变成特定数据库的SQL，理论上这样可以做到无缝切换数据库，但这一层自动转换除了少许的性能开销外，给SQL级别的优化带来了麻烦。
+3.ORM框架通常提供了缓存，并且还分为一级缓存和二级缓存，二级缓存是指跨Session的缓存，一般默认关闭，需要手动配置。二级缓存极大的增加了数据的不一致性，原因在于SQL非常灵活，常常会导致意外的更新。
+
+但是JdbcTemplate的优势在于它的确定性：即每次读取操作一定是数据库操作而不是缓存，所执行的SQL是完全确定的，缺点就是代码比较繁琐，构造INSERT INTO users VALUES (?,?,?)更是复杂。
+
+半自动ORM
+所以，介于全自动ORM如Hibernate和手写全部如JdbcTemplate之间，还有一种半自动的ORM，它只负责把ResultSet自动映射到Java Bean，或者自动填充Java Bean参数，但仍需自己写出SQL。MyBatis就是这样一种半自动化ORM框架。
+使用MyBatis最大的问题是所有SQL都需要全部手写，优点是执行的SQL就是我们自己写的SQL，对SQL进行优化非常简单，也可以编写任意复杂的SQL，或者使用数据库的特定语法，但切换数据库可能就不太容易。好消息是大部分项目并没有切换数据库的需求，完全可以针对某个数据库编写尽可能优化的SQL。
+没有自动加载一对多或多对一关系的功能。
+
+jmx和Spring Boot Actuator（执行器）
+jmx是java EE内置的 一个程序，使用jconsole启动，可以在项目中创建MBeans然后通过jmx程序管理。
+Spring Boot Actuator是spring boot内置的一个监控功能，内置了很多类型的监控信息也叫端点可供http、jmx、 ssh、telnet 等形式来监控和管理生产环境
+默认情况下可以通过http访问，但默认只能访问health和info，其他需要配置才能访问，注意如果是非安全连接不能查看详情信息，配置了也无效。
+Spring Boot > 2.2.x 默认禁用 JMX 暴露，需要添加以下设置才能使其工作：
+spring.jmx.enabled=true，且默认只暴露health给jmx（以MBeans的形式）
+
+当然，Spring Boot Actuator也支持自定义端点
+
+nacos相关
+Nacos的英文全称是Dynamic Naming and Configuration Service。是一个更易于构建云原生应用、开源的动态服务发现、配置管理和服务管理平台，由阿里巴巴开发和维护。
+
+Nacos支持多种注册中心和配置管理器，包括Spring Cloud Discovery、Dubbo、Kubernetes和Apache ServiceComb等。
+
+配置教程
+下载
+解压
+配置数据库，有Derby和mysql，Derby为内置数据库，用于测试和小型项目
+配置mysql，创建数据库，执行nacos/config目录下的sql脚本文件创建相关表
+https://hbiao68.blog.csdn.net/article/details/147126993
+
+nacos3安装教程
+https://blog.csdn.net/2302_77385038/article/details/151765675
+
+nacos3官方使用文档
+https://nacos.io/docs/latest/ecology/use-nacos-with-spring-boot3/?spm=5238cd80.16df9dda.0.0.2e476154cljs5x
 
